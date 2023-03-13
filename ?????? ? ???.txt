@@ -1,0 +1,23 @@
+led_style_grd = customtkinter.CTkButton(color_frame, text="Градиент", text_color=tc,
+                                           fg_color=bc,
+                                           hover_color=hc, corner_radius=6, width=113, height=25,
+                                           bg_color="#1C1D21")
+    led_style_grd.place(x=41, y=41)
+
+    led_style_shot = customtkinter.CTkButton(color_frame, text="Выстрел", text_color=tc,
+                                            fg_color=bc,
+                                            hover_color=hc, corner_radius=6, width=113, height=25,
+                                            bg_color="#1C1D21")
+    led_style_shot.place(x=176, y=41)
+
+    led_style_slow = customtkinter.CTkButton(color_frame, text="Задержка", text_color=tc,
+                                             fg_color=bc,
+                                             hover_color=hc, corner_radius=6, width=113, height=25,
+                                             bg_color="#1C1D21")
+    led_style_slow.place(x=315, y=41)
+
+    led_style_imp = customtkinter.CTkButton(color_frame, text="Импульс", text_color=tc,
+                                             fg_color=bc,
+                                             hover_color=hc, corner_radius=6, width=113, height=25,
+                                             bg_color="#1C1D21")
+    led_style_imp.place(x=453, y=41)

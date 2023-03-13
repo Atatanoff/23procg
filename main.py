@@ -1,479 +1,765 @@
-import os
 import tkinter
-import tkinter.constants
-from tkinter.messagebox import showinfo
+from tkinter import *
+import customtkinter
+from tktooltip import ToolTip
+import ctypes as ct
+
+def dark_title_bar(window):
+    window.update()
+    set_window_attribute = ct.windll.dwmapi.DwmSetWindowAttribute
+    get_parent = ct.windll.user32.GetParent
+    hwnd = get_parent(window.winfo_id())
+    value = 2
+    value = ct.c_int(value)
+    set_window_attribute(hwnd, 20, ct.byref(value),4)
+
+# главное окно
+app = customtkinter.CTk()
+app.title('ASPIS')
+# app.iconbitmap('aspid.ico')
+app.geometry("773x591")
+# app.attributes('-alpha', 0.5)
+app.resizable(False, False)
+# app.overrideredirect(True)
+app.configure(fg_color='#444444')
+dark_title_bar(app)
 import webbrowser
 
-import customtkinter
 
-# этот импорт, чтоб подключалось к порту, переделать в "from connect_port import ser_write"
-from connect_port import ser_write_example as ser_write
-
-
-class App(customtkinter.CTk):
-    def __init__(self):
-        super().__init__()
-
-        # configure window
-        self.title("ASPIS")
-        self.geometry("550x600")
-        self.resizable(False, False)
-        self.configure(fg_color='#323335')
-
-        # переменная хранящая имя выбранной кнопки клавиатуры
-        self.code: str = ""
-        # переменная хранящая выбранную кнопку
-        self.press_bt: customtkinter.CTkButton = None
-        # переменные хранящие выбранные чекбоксы
-        self.Ctrl = tkinter.StringVar()
-        self.Alt = tkinter.StringVar()
-        self.Shift = tkinter.StringVar()
-        self.Tab = tkinter.StringVar()
-        self.Bac = tkinter.StringVar()
-        self.Entr = tkinter.StringVar()
-        self.Del = tkinter.StringVar()
-        self.Esc = tkinter.StringVar()
-        self.F3 = tkinter.StringVar()
-        self.F4 = tkinter.StringVar()
-        self.Space = tkinter.StringVar()
-        self.Comm = tkinter.StringVar()
-        self.values_chexbox = self.Ctrl, self.Alt, self.Shift, self.Tab, self.Bac, self.Entr, \
-            self.Del, self.Esc, self.F3, self.F4, self.Space, self.Comm,
-
-        # self.iconbitmap("@aspid.ico")
-        # img = tkinter.PhotoImage(file='Frame 1.png')
-        # Label(self,image=img,bg='#000000').pack()
-
-        # переменные конфигурационного файла
-        self.dir_file = 'data/'
-        self.name_file = 'data.txt'
-        self.d_name = dict()
-
-        # конфигурация виджетов
-        self.button_group()
-        self.entry_group()
-        self.checkbox_group()
-        self.footer()
-
-        # переменная с информацией о создателях программе и т.д
-        self.about = '''
-        Здесь пишем информацию о продукте:
-        Приложения для бла-бла-юзания
-        Разработанно при участии:
-            Umbrella
-            Big Kahuna Burger
-        Авторское право:
-            Лев Натанович Щаранский
-            поэт Цветик
-        Ну и в общем так далее)...
-        '''
-
-        # загрузка данных из конфигурационного файла
-        self.load_file()
-
-    # функция загрузки из конфигурационного файла
-    def load_file(self):
-        if not os.path.isdir(self.dir_file):
-            os.mkdir(self.dir_file)
-            f = open(self.dir_file + self.name_file, 'w')
-            f.close()
-        with open(self.dir_file + self.name_file, 'r') as f:
-            for el in f.readlines():
-                values = el.split()
-                button = values[0]
-                value = values[1]
-                self.d_name[button] = values[1]
-                text_bt = self.get_text_button(value)
-                self.nametowidget(button).configure(text=text_bt)
-
-    # запись данных в конфигурационный файл
-    def save_file(self):
-        with open(self.dir_file + self.name_file, 'w') as f:
-            for key in self.d_name:
-                print(key, self.d_name[key], file=f)
-        ser_write(self.d_name[key])
-
-    # в этой ф-ции кнопки клавиатуры
-    def button_group(self):
-        self.button1 = customtkinter.CTkButton(command=lambda: self.button_function("$key1", self.button1), text="Имя",
-                                               master=self,
-                                               text_color="#008bd0",
-                                               fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                               height=70, font=('OpenSans', 9),
-                                               bg_color="#323335",)
-        self.button1.place(relx=0.570, rely=0.177)
-
-        self.button2 = customtkinter.CTkButton(command=lambda: self.button_function("$key2", self.button2), text="Имя",
-                                               master=self,
-                                               text_color="#008bd0",
-                                               fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                               height=70, font=('OpenSans', 9),
-                                               bg_color="#323335")
-        self.button2.place(relx=0.706, rely=0.177)
-
-        self.button3 = customtkinter.CTkButton(command=lambda: self.button_function("$key3", self.button3), text="Имя",
-                                               master=self,
-                                               text_color="#008bd0",
-                                               fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                               height=70, font=('OpenSans', 9),
-                                               bg_color="#323335")
-        self.button3.place(relx=0.840, rely=0.177)
-        # второй ряд
-        self.button4 = customtkinter.CTkButton(command=lambda: self.button_function("$key4", self.button4), text="Имя",
-                                               master=self,
-                                               text_color="#008bd0",
-                                               fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                               height=70, font=('OpenSans', 9),
-                                               bg_color="#323335")
-        self.button4.place(relx=0.032, rely=0.299)
-
-        self.button5 = customtkinter.CTkButton(command=lambda: self.button_function("$key5", self.button5), text="Имя",
-                                               master=self,
-                                               text_color="#008bd0",
-                                               fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                               height=70, font=('OpenSans', 9),
-                                               bg_color="#323335")
-        self.button5.place(relx=0.168, rely=0.299)
-
-        self.button6 = customtkinter.CTkButton(command=lambda: self.button_function("$key6", self.button6), text="Имя",
-                                               master=self,
-                                               text_color="#008bd0",
-                                               fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                               height=70, font=('OpenSans', 9),
-                                               bg_color="#323335")
-        self.button6.place(relx=0.301, rely=0.299)
-
-        self.button7 = customtkinter.CTkButton(command=lambda: self.button_function("$key7", self.button7), text="Имя",
-                                               master=self,
-                                               text_color="#008bd0",
-                                               fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                               height=70, font=('OpenSans', 9),
-                                               bg_color="#323335")
-        self.button7.place(relx=0.436, rely=0.299)
-
-        self.button8 = customtkinter.CTkButton(command=lambda: self.button_function("$key8", self.button8), text="Имя",
-                                               master=self,
-                                               text_color="#008bd0",
-                                               fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                               height=70, font=('OpenSans', 9),
-                                               bg_color="#323335")
-        self.button8.place(relx=0.570, rely=0.299)
-
-        self.button9 = customtkinter.CTkButton(command=lambda: self.button_function("$key9", self.button9), text="Имя",
-                                               master=self,
-                                               text_color="#008bd0",
-                                               fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                               height=70, font=('OpenSans', 9),
-                                               bg_color="#323335")
-        self.button9.place(relx=0.706, rely=0.299)
-
-        self.button10 = customtkinter.CTkButton(command=lambda: self.button_function("$key10", self.button10),
-                                                text="Имя", master=self,
-                                                text_color="#008bd0",
-                                                fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                                height=70, font=('OpenSans', 9),
-                                                bg_color="#323335")
-        self.button10.place(relx=0.840, rely=0.299)
-        # третий ряд
-        self.button11 = customtkinter.CTkButton(command=lambda: self.button_function("$key11", self.button11),
-                                                text="Имя", master=self,
-                                                text_color="#008bd0",
-                                                fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=144,
-                                                height=70, font=('OpenSans', 9),
-                                                bg_color="#323335")
-        self.button11.place(relx=0.032, rely=0.420)
-
-        self.button12 = customtkinter.CTkButton(command=lambda: self.button_function("$key12", self.button12),
-                                                text="Имя", master=self,
-                                                text_color="#008bd0",
-                                                fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                                height=70, font=('OpenSans', 9),
-                                                bg_color="#323335")
-        self.button12.place(relx=0.301, rely=0.420)
-
-        self.button13 = customtkinter.CTkButton(command=lambda: self.button_function("$key13", self.button13),
-                                                text="Имя", master=self,
-                                                text_color="#008bd0",
-                                                fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                                height=70, font=('OpenSans', 9),
-                                                bg_color="#323335")
-        self.button13.place(relx=0.436, rely=0.420)
-
-        self.button14 = customtkinter.CTkButton(command=lambda: self.button_function("$key14", self.button14),
-                                                text="Имя", master=self,
-                                                text_color="#008bd0",
-                                                fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                                height=70, font=('OpenSans', 9),
-                                                bg_color="#323335")
-        self.button14.place(relx=0.570, rely=0.420)
-
-        self.button15 = customtkinter.CTkButton(command=lambda: self.button_function("$key15", self.button15),
-                                                text="Имя", master=self,
-                                                text_color="#008bd0",
-                                                fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                                height=70, font=('OpenSans', 9),
-                                                bg_color="#323335")
-        self.button15.place(relx=0.706, rely=0.420)
-
-        self.button16 = customtkinter.CTkButton(command=lambda: self.button_function("$key16", self.button16),
-                                                text="Имя", master=self,
-                                                text_color="#008bd0",
-                                                fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                                height=144, font=('OpenSans', 9),
-                                                bg_color="#323335")
-        self.button16.place(relx=0.840, rely=0.420)
-
-        self.button17 = customtkinter.CTkButton(command=lambda: self.button_function("$key17", self.button17),
-                                                text="Имя", master=self,
-                                                text_color="#008bd0",
-                                                fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                                height=70, font=('OpenSans', 9),
-                                                bg_color="#323335")
-        self.button17.place(relx=0.032, rely=0.541)
-
-        self.button18 = customtkinter.CTkButton(command=lambda: self.button_function("$key18", self.button18),
-                                                text="Имя", master=self,
-                                                text_color="#008bd0",
-                                                fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                                height=70, font=('OpenSans', 9),
-                                                bg_color="#323335")
-        self.button18.place(relx=0.168, rely=0.541)
-
-        self.button19 = customtkinter.CTkButton(command=lambda: self.button_function("$key19", self.button19),
-                                                text="Имя", master=self,
-                                                text_color="#008bd0",
-                                                fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                                height=70, font=('OpenSans', 9),
-                                                bg_color="#323335")
-        self.button19.place(relx=0.301, rely=0.541)
-
-        self.button20 = customtkinter.CTkButton(command=lambda: self.button_function("$key20", self.button20),
-                                                text="Имя", master=self,
-                                                text_color="#008bd0",
-                                                fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=144,
-                                                height=70, font=('OpenSans', 9),
-                                                bg_color="#323335")
-        self.button20.place(relx=0.436, rely=0.541)
-
-        self.button21 = customtkinter.CTkButton(command=lambda: self.button_function("$key21", self.button21),
-                                                text="Имя", master=self,
-                                                text_color="#008bd0",
-                                                fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=70,
-                                                height=70, font=('OpenSans', 9),
-                                                bg_color="#323335")
-        self.button21.place(relx=0.706, rely=0.541)
-
-        # ЭНКОДЕРЫ
-        # Вертикальный
-        self.button24 = customtkinter.CTkButton(command=lambda: self.button_function("$key24", self.button24),
-                                                text="Имя", master=self,
-                                                text_color="#008bd0",
-                                                fg_color='#ECECEC', hover_color="#A3B8BD", corner_radius=8, width=55,
-                                                height=44, font=('OpenSans', 9),
-                                                bg_color="#323335")
-        self.button24.place(relx=0.035, rely=0.190)
-
-        self.button23 = customtkinter.CTkButton(command=lambda: self.button_function("$key23", self.button23),
-                                                text="Имя", master=self,
-                                                text_color="#008bd0",
-                                                fg_color='#ECECEC', hover_color="#A3B8BD", corner_radius=8, width=55,
-                                                height=44, font=('OpenSans', 9),
-                                                bg_color="#323335")
-        self.button23.place(relx=0.2, rely=0.190)
-
-        self.button22 = customtkinter.CTkButton(command=lambda: self.button_function("$key22", self.button22),
-                                                text="Имя", master=self,
-                                                text_color="#008bd0",
-                                                fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=8, width=60,
-                                                height=60, font=('OpenSans', 9),
-                                                bg_color="#323335")
-        self.button22.place(relx=0.11, rely=0.177)
-        # Горизонтальный
-
-        self.button25 = customtkinter.CTkButton(command=lambda: self.button_function("$key25", self.button25),
-                                                text="Имя", master=self,
-                                                text_color="#008bd0",
-                                                fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=3, width=140,
-                                                height=25, font=('OpenSans', 9),
-                                                bg_color="#323335")
-        self.button25.place(relx=0.306, rely=0.189)
-
-        self.button26 = customtkinter.CTkButton(command=lambda: self.button_function("$key26", self.button26),
-                                                text="Имя", master=self,
-                                                text_color="#008bd0",
-                                                fg_color='#FFFFFF', hover_color="#A3B8BD", corner_radius=3, width=140,
-                                                height=25, font=('OpenSans', 9),
-                                                bg_color="#323335")
-        self.button26.place(relx=0.306, rely=0.229)
-
-    # в этой ф-ции поле ввода
-    def entry_group(self):
-        self.entry = customtkinter.CTkEntry(placeholder_text="Желательно Eng", master=self, corner_radius=6, width=230,
-                                            height=30,
-                                            fg_color="#323335", bg_color="#323335", text_color='#FFFFFF')
-        self.entry.place(relx=0.549, rely=0.743)
-
-    # в этой ф-ции чекбоксы и кнопка сохранить
-    def checkbox_group(self):
-        self.checkbox1 = customtkinter.CTkCheckBox(variable=self.Ctrl, offvalue='', onvalue="+Ctrl", master=self,
-                                                   text_color="#cce74f", text="Ctrl",
-                                                   fg_color="#cce74f", hover_color="#cce74f", checkmark_color="#313335",
-                                                   bg_color="#323335", width=70, checkbox_width=13, checkbox_height=13,
-                                                   border_width=1, corner_radius=3)
-        self.checkbox1.place(relx=0.032, rely=0.700)
-
-        self.checkbox2 = customtkinter.CTkCheckBox(variable=self.Alt, offvalue='', onvalue="+Alt", master=self,
-                                                   text_color="#cce74f", text="Alt",
-                                                   fg_color="#cce74f", hover_color="#cce74f", checkmark_color="#313335",
-                                                   bg_color="#323335", width=70, checkbox_width=13, checkbox_height=13,
-                                                   border_width=1, corner_radius=3)
-        self.checkbox2.place(relx=0.032, rely=0.745)
-
-        self.checkbox3 = customtkinter.CTkCheckBox(variable=self.Shift, offvalue='', onvalue="+Shift", master=self,
-                                                   text_color="#cce74f", text="Shift",
-                                                   fg_color="#cce74f", hover_color="#cce74f", checkmark_color="#313335",
-                                                   bg_color="#323335", width=70, checkbox_width=13, checkbox_height=13,
-                                                   border_width=1, corner_radius=3)
-        self.checkbox3.place(relx=0.032, rely=0.79)
-
-        self.checkbox4 = customtkinter.CTkCheckBox(variable=self.Tab, offvalue='', onvalue="+Tab", master=self,
-                                                   text_color="#cce74f", text="Tab",
-                                                   fg_color="#cce74f", hover_color="#cce74f", checkmark_color="#313335",
-                                                   bg_color="#323335", width=70, checkbox_width=13, checkbox_height=13,
-                                                   border_width=1, corner_radius=3)
-        self.checkbox4.place(relx=0.032, rely=0.835)
-
-        self.checkbox5 = customtkinter.CTkCheckBox(variable=self.Esc, offvalue='', onvalue="+Esc", master=self,
-                                                   text_color="#cce74f", text="Esc",
-                                                   fg_color="#cce74f", hover_color="#cce74f", checkmark_color="#313335",
-                                                   bg_color="#323335", width=70, checkbox_width=13, checkbox_height=13,
-                                                   border_width=1, corner_radius=3)
-        self.checkbox5.place(relx=0.165, rely=0.700)
-
-        self.checkbox6 = customtkinter.CTkCheckBox(variable=self.Bac, offvalue='', onvalue="+Bac", master=self,
-                                                   text_color="#cce74f", text="Bac",
-                                                   fg_color="#cce74f", hover_color="#cce74f", checkmark_color="#313335",
-                                                   bg_color="#323335", width=70, checkbox_width=13, checkbox_height=13,
-                                                   border_width=1, corner_radius=3)
-        self.checkbox6.place(relx=0.165, rely=0.745)
-
-        self.checkbox7 = customtkinter.CTkCheckBox(variable=self.Entr, offvalue='', onvalue="+Entr", master=self,
-                                                   text_color="#cce74f", text="Entr",
-                                                   fg_color="#cce74f", hover_color="#cce74f", checkmark_color="#313335",
-                                                   bg_color="#323335", width=70, checkbox_width=13, checkbox_height=13,
-                                                   border_width=1, corner_radius=3)
-        self.checkbox7.place(relx=0.165, rely=0.79)
-
-        self.checkbox8 = customtkinter.CTkCheckBox(variable=self.Del, offvalue='', onvalue="+Del", master=self,
-                                                   text_color="#cce74f", text="Del",
-                                                   fg_color="#cce74f", hover_color="#cce74f", checkmark_color="#313335",
-                                                   bg_color="#323335", width=70, checkbox_width=13, checkbox_height=13,
-                                                   border_width=1, corner_radius=3)
-        self.checkbox8.place(relx=0.165, rely=0.835)
-
-        self.checkbox9 = customtkinter.CTkCheckBox(variable=self.F3, offvalue='', onvalue="+F3", master=self,
-                                                   text_color="#cce74f", text="F3",
-                                                   fg_color="#cce74f", hover_color="#cce74f", checkmark_color="#313335",
-                                                   bg_color="#323335", width=70, checkbox_width=13, checkbox_height=13,
-                                                   border_width=1, corner_radius=3)
-        self.checkbox9.place(relx=0.302, rely=0.700)
-
-        self.checkbox10 = customtkinter.CTkCheckBox(variable=self.F4, offvalue='', onvalue="+F4", master=self,
-                                                    text_color="#cce74f", text="F4",
-                                                    fg_color="#cce74f", hover_color="#cce74f",
-                                                    checkmark_color="#313335",
-                                                    bg_color="#323335", width=70, checkbox_width=13, checkbox_height=13,
-                                                    border_width=1, corner_radius=3)
-        self.checkbox10.place(relx=0.302, rely=0.745)
-
-        self.checkbox11 = customtkinter.CTkCheckBox(variable=self.Space, offvalue='', onvalue="+Space", master=self,
-                                                    text_color="#cce74f", text="Space",
-                                                    fg_color="#cce74f", hover_color="#cce74f",
-                                                    checkmark_color="#313335",
-                                                    bg_color="#323335", width=70, checkbox_width=13, checkbox_height=13,
-                                                    border_width=1, corner_radius=3)
-        self.checkbox11.place(relx=0.302, rely=0.79)
-
-        self.checkbox12 = customtkinter.CTkCheckBox(variable=self.Comm, offvalue='', onvalue="+Comm", master=self,
-                                                    text_color="#cce74f", text="Comm",
-                                                    fg_color="#cce74f", hover_color="#cce74f",
-                                                    checkmark_color="#313335",
-                                                    bg_color="#323335", width=70, checkbox_width=13, checkbox_height=13,
-                                                    border_width=1, corner_radius=3)
-        self.checkbox12.place(relx=0.302, rely=0.835)
-
-        # ____________________________________________________________________________________________________________
-
-        self.label_1 = customtkinter.CTkLabel(text="Введите макрос набор", text_color="#8AB42F", master=self,
-                                              justify=tkinter.LEFT,
-                                              bg_color="#323335")
-        self.label_1.place(relx=0.550, rely=0.690)
-        self.button = customtkinter.CTkButton(command=self.save, text="Сохранить", master=self, text_color="#FFFFFF",
-                                              fg_color='#323335',
-                                              hover_color="#8AB42F", corner_radius=8, width=120, height=40,
-                                              bg_color="#323335", state="disabled")
-        self.button.place(relx=0.655, rely=0.811)
-
-    # информацияонный подвал
-    def footer(self):
-        border_1 = customtkinter.CTkLabel(self, text="©Aspis Keyboard 2022", text_color="#cce74f", justify=tkinter.LEFT)
-        border_1.place(relx=0.01, rely=0.95)
-
-        labelr1 = tkinter.Label(self, text="behance", fg="#0058fb", cursor="hand2", bg='#313335')
-        labelr1.bind("<Button-1>", lambda event: self.open_link(r"https://www.behance.net/shakirovnz"))
-        labelr1.place(relx=0.36, rely=0.95)
-
-        labelr2 = tkinter.Label(self, text="telegram", fg="#2aa2de", cursor="hand2", bg='#313335')
-        labelr2.bind("<Button-1>", lambda event: self.open_link(r"https://t.me/shakirovnz"))
-        labelr2.place(relx=0.45, rely=0.95)
-
-        labelr3 = tkinter.Label(self, text="about", fg="#2aa2de", cursor="hand2", bg='#313335')
-        labelr3.bind("<Button-1>", lambda event: showinfo(title="Информация", message=self.about))
-        labelr3.place(relx=0.54, rely=0.95)
-
-    # ф-ция открытия ссылок из подвала
-    @staticmethod
-    def open_link(url):
-        webbrowser.open_new(url)
-
-    # функция сохранения значния выбраной кнопки клавиатуры
-    def button_function(self, arg: str, bt):
-        self.code = arg
-        if self.press_bt: self.press_bt.configure(fg_color='#FFFFFF')
-        if self.button.cget('state') == 'disabled':
-            self.button.configure(state='active')
-        self.press_bt = bt
-        bt.configure(fg_color='#8AB42F')
-
-    def save(self):
-        name = f"+{self.entry.get()}" if self.entry.get() else ''
-        data_to_send = self.code + ''.join([el.get() for el in self.values_chexbox]) + name + ';'
-        print(data_to_send)
-        text_bt = self.get_text_button(data_to_send)
-        self.d_name[self.press_bt.winfo_name()] = data_to_send
-        if text_bt:
-            self.press_bt.configure(text=text_bt)
-
-        for el in self.values_chexbox:
-            el.set('')
-
-        self.entry.delete(0, tkinter.constants.END)
-        self.button.configure(state='disabled')
-        self.press_bt.configure(fg_color='#FFFFFF')
-        self.save_file()
-
-    # ф-ция форматирования текста кнопки
-    def get_text_button(self, data_to_send):
-        name_bt = data_to_send.split('+')
-        key = name_bt.pop(0)
-        if key in ("$key25", "$key26"): return data_to_send[6:-1]
-        text_bt = ''
-        for i in range(len(name_bt) - 1):
-            text_bt += name_bt[i] + '+' + '\n'
-        if name_bt: text_bt += name_bt[-1][:-1]
-        return text_bt
+# окна для готовыйх макрос наборов из различных программ
+def Photoshop():
+    # окно
+    new_win_1 = customtkinter.CTkToplevel()
+    dark_title_bar(new_win_1)
+    new_win_1.title('Photoshop')
+    new_win_1.configure(bg='#1C1D21')
+    new_win_1.geometry("400x300")
+    new_win_1.configure(fg_color='#444444')
 
 
-if __name__ == "__main__":
-    app = App()
-    app.mainloop()
+# Ячейки главного, я раскидал их по блокам
+logobox = customtkinter.CTkFrame(master=app, fg_color="#1C1D21")
+logobox.configure(width=175, height=107.4, corner_radius=0)
+logobox.place(x=0, y=0)
+
+menu = customtkinter.CTkFrame(master=app, fg_color="#1C1D21")
+menu.configure(width=175, height=307, corner_radius=0)
+menu.place(x=0, y=108)
+
+fotter = customtkinter.CTkFrame(master=app, fg_color="#1C1D21")
+fotter.configure(width=175, height=176, corner_radius=0)
+fotter.place(x=0, y=415)
+
+main = customtkinter.CTkFrame(master=app, fg_color="#1C1D21")
+main.configure(width=598, height=374, corner_radius=0)
+main.place(x=175, y=0)
+
+nav = customtkinter.CTkFrame(master=app, fg_color="#1C1D21")
+nav.configure(width=607, height=217, corner_radius=0)
+nav.place(x=175, y=375)
+
+# Надпись которая зависит от времяни открывания программы
+hello = customtkinter.CTkLabel(main, text="Доброе утро", text_color="#FFFFFF", font=("Arial blod", 15))
+hello.place(relx=.5, rely=.5, anchor="c")
+# различные рандомные вырожения
+hello = customtkinter.CTkLabel(nav, text="work hard go pro", text_color="#777777", font=("blod", 10))
+hello.place(relx=.5, rely=.5, anchor="c")
+
+
+# Основня часть ввода клавишл
+
+# ввод крутилок, сделал отдельным окном
+def Enq_page():
+    key_color = "#FFFFFF"
+    key_hover = "#B5F22F"
+    key_text_color = "#1C1D21"
+    key_font = ("", 10)
+    Enq_frame = customtkinter.CTkFrame(main, width=598, height=374, corner_radius=0, fg_color="#1C1D21")
+
+    inf_text = customtkinter.CTkLabel(Enq_frame, text="крутить\nв лево", text_color="#777777", font=("blod", 10))
+    inf_text.place(x=77, y=114)
+
+    inf_text = customtkinter.CTkLabel(Enq_frame, text="зажать и крутить\nв лево", text_color="#777777",
+                                      font=("blod", 10))
+    inf_text.place(x=55, y=239)
+
+    inf_text = customtkinter.CTkLabel(Enq_frame, text="нажатие\nна крутилку", text_color="#777777", font=("blod", 10))
+    inf_text.place(x=159, y=124)
+
+    inf_text = customtkinter.CTkLabel(Enq_frame, text="крутить\nв право", text_color="#777777", font=("blod", 10))
+    inf_text.place(x=265, y=114)
+
+    inf_text = customtkinter.CTkLabel(Enq_frame, text="зажать и крутить\nв право", text_color="#777777",
+                                      font=("blod", 10))
+    inf_text.place(x=240, y=239)
+
+    inf_text = customtkinter.CTkLabel(Enq_frame, text="крутить в верх", text_color="#777777", font=("blod", 10))
+    inf_text.place(x=451, y=110)
+
+    inf_text = customtkinter.CTkLabel(Enq_frame, text="крутить в низ", text_color="#777777", font=("blod", 10))
+    inf_text.place(x=451, y=241)
+
+    back_but = customtkinter.CTkButton(Enq_frame, command=key_page, text="вернутся", text_color="#FFFFFF",
+                                       fg_color='#303135',
+                                       hover_color="#515358", corner_radius=8, width=76, height=25,
+                                       bg_color="#1C1D21")
+    back_but.place(x=43, y=42)
+
+    key22 = customtkinter.CTkButton(Enq_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key22.place(x=151, y=156)
+
+    key23 = customtkinter.CTkButton(Enq_frame, text="Пусто", corner_radius=8, width=106, height=40,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key23.place(x=41, y=147)
+
+    key24 = customtkinter.CTkButton(Enq_frame, text="Пусто", corner_radius=8, width=106, height=40,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key24.place(x=41, y=190)
+
+    key25 = customtkinter.CTkButton(Enq_frame, text="Пусто", corner_radius=8, width=106, height=40,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key25.place(x=225, y=147)
+
+    key26 = customtkinter.CTkButton(Enq_frame, text="Пусто", corner_radius=8, width=106, height=40,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key26.place(x=225, y=190)
+
+    key27 = customtkinter.CTkButton(Enq_frame, text="Пусто", corner_radius=8, width=144, height=50,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key27.place(x=411, y=137)
+
+    key28 = customtkinter.CTkButton(Enq_frame, text="Пусто", corner_radius=8, width=144, height=50,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key28.place(x=411, y=190)
+
+    Enq_frame.place(x=0, y=0)
+
+
+# ввод клавиш, также ентри код и бар готовых макросов
+def key_page():
+    # ввод клавишь -----------------------------------------------------------------------------------------------
+    # набор для замены цветов, размера шрифта, итд сразу у всехх клавиш
+    key_color = "#FFFFFF"
+    key_hover = "#B5F22F"
+    key_text_color = "#1C1D21"
+    key_font = ("", 10)
+    key_frame = customtkinter.CTkFrame(main, width=598, height=374, corner_radius=0, fg_color="#1C1D21")
+
+    key0 = customtkinter.CTkButton(key_frame, text="", corner_radius=29, width=556, height=331, border_width=1,
+                                   border_color="#444444",
+                                   fg_color="#1C1D21", text_color="#1C1D21", hover_color="#1C1D21")
+    key0.place(x=21, y=24)
+
+    # кнопки для входа в меню энкодера
+    Enq_key = customtkinter.CTkButton(key_frame, command=Enq_page, text=" ", corner_radius=105, width=70, height=70,
+                                      fg_color="#EFEFEF", hover_color=key_hover)
+    Enq_key.place(x=42, y=38)
+
+    Enq_key2 = customtkinter.CTkButton(key_frame, command=Enq_page, text=" ", corner_radius=5, width=160, height=40,
+                                       fg_color="#EFEFEF", hover_color=key_hover)
+    Enq_key2.place(x=145, y=55)
+
+    # клавишы
+    key1 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                   fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key1.place(x=337, y=43)
+
+    ToolTip(key1, msg="Ctrl+Alt+e | Ctrl+Alt+shift+e", delay=0, fg="#B5F22F", bg="#1C1D21")
+
+    key2 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                   fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key2.place(x=411, y=43)
+
+    key3 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                   fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key3.place(x=485, y=43)
+
+    key4 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                   fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key4.place(x=41, y=116)
+
+    key5 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                   fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key5.place(x=115, y=116)
+
+    key6 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                   fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key6.place(x=189, y=116)
+
+    key7 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                   fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key7.place(x=263, y=116)
+
+    key8 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                   fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key8.place(x=337, y=116)
+
+    key9 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                   fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key9.place(x=411, y=116)
+
+    key10 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key10.place(x=485, y=116)
+
+    key11 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=144, height=70,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key11.place(x=41, y=189)
+
+    key12 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key12.place(x=189, y=189)
+
+    key13 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key13.place(x=263, y=189)
+
+    key14 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key14.place(x=337, y=189)
+
+    key15 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key15.place(x=411, y=189)
+
+    key16 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=144,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key16.place(x=485, y=189)
+
+    key17 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key17.place(x=41, y=262)
+
+    key18 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key18.place(x=115, y=262)
+
+    key19 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key19.place(x=189, y=262)
+
+    key20 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=144, height=70,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key20.place(x=263, y=262)
+
+    key21 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    key21.place(x=411, y=262)
+
+    key_frame.place(x=0, y=0)
+
+    # окно для работы с кнопками
+    entry_frame = customtkinter.CTkFrame(nav, width=607, height=217, corner_radius=0, fg_color="#1C1D21")
+
+    # бар с готовыеми макрос наборами
+    toolbar = customtkinter.CTkScrollableFrame(master=entry_frame, scrollbar_button_color="#303135", fg_color="#1C1D21",
+                                               orientation="horizontal", width=556, height=51, corner_radius=0)
+    toolbar.place(x=42, y=0)
+
+    buttonPs = customtkinter.CTkButton(toolbar, command=Photoshop, text="Photoshop", corner_radius=12, width=90,
+                                       height=51, fg_color="transparent", text_color="#777777",
+                                       hover_color="#303135", font=("", 11), border_color="#FFFFFF")
+    buttonPs.grid(row=0, column=0)
+    buttonil = customtkinter.CTkButton(toolbar, text="illustrator", corner_radius=12, width=90,
+                                       height=51, fg_color="transparent", text_color="#777777",
+                                       hover_color="#303135", font=("", 11), border_color="#FFFFFF")
+    buttonil.grid(row=0, column=1)
+    buttonPp = customtkinter.CTkButton(toolbar, text="PremierPro", corner_radius=12, width=90,
+                                       height=51, fg_color="transparent", text_color="#777777",
+                                       hover_color="#303135", font=("", 11), border_color="#FFFFFF")
+    buttonPp.grid(row=0, column=2)
+    buttonC4D = customtkinter.CTkButton(toolbar, text="Cinema4D", corner_radius=12, width=90,
+                                        height=51, fg_color="transparent", text_color="#777777",
+                                        hover_color="#303135", font=("", 11), border_color="#FFFFFF")
+    buttonC4D.grid(row=0, column=3)
+    button3Ds = customtkinter.CTkButton(toolbar, text="3DsMax", corner_radius=12, width=90,
+                                        height=51, fg_color="transparent", text_color="#777777",
+                                        hover_color="#303135", font=("", 11), border_color="#FFFFFF")
+    button3Ds.grid(row=0, column=4)
+    buttonBle = customtkinter.CTkButton(toolbar, text="Blender", corner_radius=12, width=90,
+                                        height=51, fg_color="transparent", text_color="#777777",
+                                        hover_color="#303135", font=("", 11), border_color="#FFFFFF")
+    buttonBle.grid(row=0, column=5)
+    buttonFig = customtkinter.CTkButton(toolbar, text="Figma", corner_radius=12, width=90,
+                                        height=51, fg_color="transparent", text_color="#777777",
+                                        hover_color="#303135", font=("", 11), border_color="#FFFFFF")
+    buttonFig.grid(row=0, column=6)
+    buttonFu = customtkinter.CTkButton(toolbar, text="Fusion 360", corner_radius=12, width=90,
+                                       height=51, fg_color="transparent", text_color="#777777",
+                                       hover_color="#303135", font=("", 11), border_color="#FFFFFF")
+    buttonFu.grid(row=0, column=7)
+
+    # ввод макросов
+    label_1 = customtkinter.CTkLabel(entry_frame, text="введите макрос", text_color="#FFFFFF", justify=tkinter.LEFT)
+    label_1.place(x=329, y=75)
+
+    entry = customtkinter.CTkEntry(entry_frame, placeholder_text="желательно eng", placeholder_text_color="#474747",
+                                   corner_radius=6, width=230, height=30, fg_color="#1C1D21", bg_color="#1C1D21",
+                                   text_color='#FFFFFF', border_width=1, border_color="#777777")
+    entry.place(x=329, y=103)
+
+    # чекбоксы
+    C = StringVar()
+    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=C, offvalue='', text_color="#B5F22F", text="Ctrl",
+                                         fg_color="#B5F22F", hover_color="#B5F22F", checkmark_color="#313335",
+                                         bg_color="#1C1D21", width=70, checkbox_width=13, checkbox_height=13,
+                                         border_width=1, corner_radius=3)
+    checkbox.place(x=45, y=78)
+
+    A = StringVar()
+    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=A, offvalue='', text_color="#B5F22F", text="Alt",
+                                         fg_color="#B5F22F", hover_color="#B5F22F", checkmark_color="#313335",
+                                         bg_color="#1C1D21", width=70, checkbox_width=13, checkbox_height=13,
+                                         border_width=1, corner_radius=3)
+    checkbox.place(x=45, y=105)
+
+    S = StringVar()
+    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=S, offvalue='', text_color="#B5F22F", text="Shift",
+                                         fg_color="#B5F22F", hover_color="#B5F22F", checkmark_color="#313335",
+                                         bg_color="#1C1D21", width=70, checkbox_width=13, checkbox_height=13,
+                                         border_width=1, corner_radius=3)
+    checkbox.place(x=45, y=132)
+
+    T = StringVar()
+    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=T, offvalue='', text_color="#B5F22F", text="Tab",
+                                         fg_color="#B5F22F", hover_color="#B5F22F", checkmark_color="#313335",
+                                         bg_color="#1C1D21", width=70, checkbox_width=13, checkbox_height=13,
+                                         border_width=1, corner_radius=3)
+    checkbox.place(x=45, y=159)
+
+    E = StringVar()
+    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=E, offvalue='', text_color="#B5F22F", text="Esc",
+                                         fg_color="#B5F22F", hover_color="#B5F22F", checkmark_color="#313335",
+                                         bg_color="#1C1D21", width=70, checkbox_width=13, checkbox_height=13,
+                                         border_width=1, corner_radius=3)
+    checkbox.place(x=142, y=78)
+
+    B = StringVar()
+    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=B, offvalue='', text_color="#B5F22F", text="Bac",
+                                         fg_color="#B5F22F", hover_color="#B5F22F", checkmark_color="#313335",
+                                         bg_color="#1C1D21", width=70, checkbox_width=13, checkbox_height=13,
+                                         border_width=1, corner_radius=3)
+    checkbox.place(x=142, y=105)
+
+    En = StringVar()
+    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=En, offvalue='', text_color="#B5F22F", text="Entr",
+                                         fg_color="#B5F22F", hover_color="#B5F22F", checkmark_color="#313335",
+                                         bg_color="#1C1D21", width=70, checkbox_width=13, checkbox_height=13,
+                                         border_width=1, corner_radius=3)
+    checkbox.place(x=142, y=132)
+
+    D = StringVar()
+    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=D, offvalue='', text_color="#B5F22F", text="Del",
+                                         fg_color="#B5F22F", hover_color="#B5F22F", checkmark_color="#313335",
+                                         bg_color="#1C1D21", width=70, checkbox_width=13, checkbox_height=13,
+                                         border_width=1, corner_radius=3)
+    checkbox.place(x=142, y=159)
+
+    F10 = StringVar()
+    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=E, offvalue='', text_color="#B5F22F", text="F10",
+                                         fg_color="#B5F22F", hover_color="#B5F22F", checkmark_color="#313335",
+                                         bg_color="#1C1D21", width=70, checkbox_width=13, checkbox_height=13,
+                                         border_width=1, corner_radius=3)
+    checkbox.place(x=238, y=78)
+
+    F11 = StringVar()
+    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=B, offvalue='', text_color="#B5F22F", text="F11",
+                                         fg_color="#B5F22F", hover_color="#B5F22F", checkmark_color="#313335",
+                                         bg_color="#1C1D21", width=70, checkbox_width=13, checkbox_height=13,
+                                         border_width=1, corner_radius=3)
+    checkbox.place(x=238, y=105)
+
+    Sp = StringVar()
+    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=En, offvalue='', text_color="#B5F22F", text="Space",
+                                         fg_color="#B5F22F", hover_color="#B5F22F", checkmark_color="#313335",
+                                         bg_color="#1C1D21", width=70, checkbox_width=13, checkbox_height=13,
+                                         border_width=1, corner_radius=3)
+    checkbox.place(x=238, y=132)
+
+    Cm = StringVar()
+    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=D, offvalue='', text_color="#B5F22F", text="Comm",
+                                         fg_color="#B5F22F", hover_color="#B5F22F", checkmark_color="#313335",
+                                         bg_color="#1C1D21", width=70, checkbox_width=13, checkbox_height=13,
+                                         border_width=1, corner_radius=3)
+    checkbox.place(x=238, y=159)
+
+    namekey = "key0000"
+
+    # Работа чекбоксов
+    def save():
+        name = entry.get()
+        entrycode = (f'{name}')
+
+        if entry.get():
+            name = "+" + entrycode
+        else:
+            name = ""
+
+        if (C.get()):
+            namec = "+Ctrl"
+        else:
+            namec = ""
+
+        if (A.get()):
+            namea = "+Alt"
+        else:
+            namea = ""
+
+        if (S.get()):
+            names = "+Shift"
+        else:
+            names = ""
+
+        if (T.get()):
+            namet = "+Tab"
+        else:
+            namet = ""
+        if (E.get()):
+            namec = "+Esc"
+        else:
+            namec = ""
+
+        if (B.get()):
+            namea = "+Bac"
+        else:
+            namea = ""
+
+        if (En.get()):
+            names = "+Enter"
+        else:
+            names = ""
+
+        if (D.get()):
+            namet = "+Del"
+        else:
+            namet = ""
+
+        dataToSend = "$" + namekey + namec + namea + names + namet + name + ";"
+        print(dataToSend)
+
+    # кнопка сохронить
+    button = customtkinter.CTkButton(entry_frame, command=save, text="Сохранить", text_color="#1C1D21",
+                                     fg_color='#66871E',
+                                     hover_color="#B5F22F", corner_radius=8, width=113, height=30, bg_color="#1C1D21")
+    button.place(x=441, y=146)
+
+    entry_frame.place(x=0, y=0)
+
+
+# Смена лед подсветки -------------------------------------------------------------------------------------
+def led_page():
+    # ввод клавишь -----------------------------------------------------------------------------------------------
+    # цвета для всех клавиш
+    workc= "#B5F22F" #цвет выбранный пользователем
+
+    key_color = "#3F3F3F"
+    key_hover = "#3F3F3F"
+    key_text_color = "#3F3F3F"
+    key_font = ("", 10)
+    led_clr = "#3F3F3F"
+
+    led_frame = customtkinter.CTkFrame(main, width=598, height=374, corner_radius=0, fg_color="#1C1D21")
+
+    led0 = customtkinter.CTkButton(led_frame, text="", corner_radius=29, width=556, height=331, border_width=5,
+                                   border_color=workc,
+                                   fg_color="#1C1D21", text_color="#1C1D21", hover_color="#1C1D21")
+    led0.place(x=21, y=24)
+
+    # клавишы
+    Enq_key = customtkinter.CTkButton(led_frame, text=" ", corner_radius=105, width=70, height=70,
+                                      fg_color="#3F3F3F", hover_color="#3F3F3F")
+    Enq_key.place(x=42, y=38)
+
+    Enq_key2 = customtkinter.CTkButton(led_frame, text=" ", corner_radius=5, width=160, height=40,
+                                       fg_color="#3F3F3F", hover_color="#3F3F3F")
+    Enq_key2.place(x=145, y=55)
+
+    led1 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=70, border_width=5,
+                                   border_color=led_clr,
+                                   fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led1.place(x=337, y=43)
+
+    led2 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=70, border_width=5,
+                                   border_color=led_clr,
+                                   fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led2.place(x=411, y=43)
+
+    led3 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=70, border_width=5,
+                                   border_color=led_clr,
+                                   fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led3.place(x=485, y=43)
+
+    led4 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=70, border_width=5,
+                                   border_color=led_clr,
+                                   fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led4.place(x=41, y=116)
+
+    led5 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=70, border_width=5,
+                                   border_color=led_clr,
+                                   fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led5.place(x=115, y=116)
+
+    led6 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=70, border_width=5,
+                                   border_color=led_clr,
+                                   fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led6.place(x=189, y=116)
+
+    led7 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=70, border_width=5,
+                                   border_color=led_clr,
+                                   fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led7.place(x=263, y=116)
+
+    led8 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=70, border_width=5,
+                                   border_color=led_clr,
+                                   fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led8.place(x=337, y=116)
+
+    led9 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=70, border_width=5,
+                                   border_color=led_clr,
+                                   fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led9.place(x=411, y=116)
+
+    led10 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=70, border_width=5,
+                                    border_color=led_clr,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led10.place(x=485, y=116)
+
+    led11 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=144, height=70, border_width=5,
+                                    border_color=led_clr,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led11.place(x=41, y=189)
+
+    led12 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=70, border_width=5,
+                                    border_color=led_clr,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led12.place(x=189, y=189)
+
+    led13 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=70, border_width=5,
+                                    border_color=led_clr,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led13.place(x=263, y=189)
+
+    led14 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=70, border_width=5,
+                                    border_color=led_clr,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led14.place(x=337, y=189)
+
+    led15 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=70, border_width=5,
+                                    border_color=led_clr,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led15.place(x=411, y=189)
+
+    led16 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=144, border_width=5,
+                                    border_color=led_clr,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led16.place(x=485, y=189)
+
+    led17 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=70, border_width=5,
+                                    border_color=led_clr,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led17.place(x=41, y=262)
+
+    led18 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=70, border_width=5,
+                                    border_color=led_clr,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led18.place(x=115, y=262)
+
+    led19 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=70, border_width=5,
+                                    border_color=led_clr,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led19.place(x=189, y=262)
+
+    led20 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=144, height=70, border_width=5,
+                                    border_color=led_clr,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led20.place(x=263, y=262)
+
+    led21 = customtkinter.CTkButton(led_frame, text="", corner_radius=8, width=70, height=70, border_width=5,
+                                    border_color=led_clr,
+                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
+    led21.place(x=411, y=262)
+
+    led_frame.place(x=0, y=0)
+
+    # выбор цвето и настройка подсветки -------------------------------------------------------------------------
+    # рамки для цветовых ячеек "размер и цвет"
+    cl_wid = 0
+    cl_col = "#FFFFFF"
+
+    tc = "#FFFFFF"
+    bc = "#333333"
+    hc = "#B5F22F"
+    uc = "#303135"
+
+
+    color_frame = customtkinter.CTkFrame(nav, width=607, height=217, corner_radius=0, fg_color="#1C1D21")
+
+    led_effect = customtkinter.CTkSegmentedButton(color_frame, values=["     Градиент     ", "     Выстрел     ", "     Задержка     ", "      Импульс     "],
+                                                          text_color=tc,fg_color=bc,unselected_color=uc,selected_color=hc,)
+    led_effect.place(x=41, y=41)
+
+    led_on_off = customtkinter.CTkButton(color_frame, text="Выкл\Вкл", text_color="#333333",
+                                            fg_color="#FFFFFF",
+                                            hover_color="#B5F22F", corner_radius=6, width=101, height=25,
+                                            bg_color="#1C1D21")
+    led_on_off.place(x=452, y=42)
+
+    slider_1 = customtkinter.CTkSlider(color_frame,  from_=0, to=100,width=514,progress_color=tc,
+                                       button_hover_color=workc,button_color=workc)
+    slider_1.place(x=41, y=80)
+    slider_1.set(50)
+
+    # цветовые ячейки
+    color1 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                     border_color=cl_col, fg_color="#FFB900", hover_color="#FFB900")
+    color1.place(x=41, y=113)
+
+    color2 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                     border_color=cl_col, fg_color="#FF8C00", hover_color="#FF8C00")
+    color2.place(x=75, y=113)
+
+    color3 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                     border_color=cl_col, fg_color="#CA5010", hover_color="#CA5010")
+    color3.place(x=109, y=113)
+
+    color4 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                     border_color=cl_col, fg_color="#DA3B01", hover_color="#DA3B01")
+    color4.place(x=142, y=113)
+
+    color5 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                     border_color=cl_col, fg_color="#E81123", hover_color="#E81123")
+    color5.place(x=176, y=113)
+
+    color6 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                     border_color=cl_col, fg_color="#EA005E", hover_color="#EA005E")
+    color6.place(x=210, y=113)
+
+    color7 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                     border_color=cl_col, fg_color="#E81123", hover_color="#E81123")
+    color7.place(x=245, y=113)
+
+    color8 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                     border_color=cl_col, fg_color="#EA005E", hover_color="#EA005E")
+    color8.place(x=279, y=113)
+
+    color9 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                     border_color=cl_col, fg_color="#E81123", hover_color="#E81123")
+    color9.place(x=314, y=113)
+
+    color10 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#EA005E", hover_color="#EA005E")
+    color10.place(x=349, y=113)
+
+    color11 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#C30052", hover_color="#C30052")
+    color11.place(x=383, y=113)
+
+    color12 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#E3008C", hover_color="#E3008C")
+    color12.place(x=418, y=113)
+
+    color13 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#BF0077", hover_color="#BF0077")
+    color13.place(x=453, y=113)
+
+    color14 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#C239B3", hover_color="#C239B3")
+    color14.place(x=488, y=113)
+
+    color15 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#9A0089", hover_color="#9A0089")
+    color15.place(x=522, y=113)
+
+    color16 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#0078D4", hover_color="#0078D4")
+    color16.place(x=41, y=146)
+
+    color17 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#0063B1", hover_color="#0063B1")
+    color17.place(x=75, y=146)
+
+    color18 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#8E8CD8", hover_color="#8E8CD8")
+    color18.place(x=109, y=146)
+
+    color19 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#6B69D6", hover_color="#6B69D6")
+    color19.place(x=142, y=146)
+
+    color20 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#8764B8", hover_color="#8764B8")
+    color20.place(x=176, y=146)
+
+    color21 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#744DA9", hover_color="#744DA9")
+    color21.place(x=210, y=146)
+
+    color22 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#B146C2", hover_color="#B146C2")
+    color22.place(x=245, y=146)
+
+    color23 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#881798", hover_color="#881798")
+    color23.place(x=279, y=146)
+
+    color24 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#B5F22F", hover_color="#B5F22F")
+    color24.place(x=314, y=146)
+
+    color25 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#D7F22F", hover_color="#D7F22F")
+    color25.place(x=349, y=146)
+
+    color26 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#F2EA2F", hover_color="#F2EA2F")
+    color26.place(x=383, y=146)
+
+    color27 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#FFFFFF", hover_color="#FFFFFF")
+    color27.place(x=418, y=146)
+
+    color28 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#B8C9E2", hover_color="#B8C9E2")
+    color28.place(x=453, y=146)
+
+    color29 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#B4DAB5", hover_color="#B4DAB5")
+    color29.place(x=488, y=146)
+
+    color30 = customtkinter.CTkButton(color_frame, text="", corner_radius=4, width=31, height=31, border_width=cl_wid,
+                                      border_color=cl_col, fg_color="#FFE2BF", hover_color="#FFE2BF")
+    color30.place(x=522, y=146)
+
+    color_frame.place(x=0, y=0)  # конец окна
+
+
+# кнопки меню ----------------------------------------------------------------------------------------------------
+led_menu_but = customtkinter.CTkButton(menu, command=led_page, text="Подсветка", text_color="#1C1D21",
+                                       fg_color='#B5F22F',
+                                       hover_color="#B5F22F", corner_radius=8, width=113, height=30, bg_color="#1C1D21")
+led_menu_but.place(x=31, y=82)
+
+key_menu_but = customtkinter.CTkButton(menu, command=key_page, text="Ввод макросов", text_color="#1C1D21",
+                                       fg_color='#B5F22F',
+                                       hover_color="#B5F22F", corner_radius=8, width=113, height=30, bg_color="#1C1D21")
+key_menu_but.place(x=31, y=42)
+# подсказки
+ToolTip(key_menu_but, msg="Замена функций клавишь", delay=0, fg="#B5F22F", bg="#1C1D21")
+ToolTip(led_menu_but, msg="Замена цвета подсветки", delay=0, fg="#B5F22F", bg="#1C1D21")
+
+# Подвал     ----------------------------------------------------------------------------------------------------
+about = customtkinter.CTkLabel(fotter, text="О нас", text_color="#FFFFFF", justify=tkinter.LEFT, font=("", 9))
+about.place(x=32, y=33)
+
+telega = customtkinter.CTkLabel(fotter, text="telegram", text_color="#7AA7FF", justify=tkinter.LEFT, font=("", 9))
+telega.place(x=32, y=58)
+
+dprof = customtkinter.CTkLabel(fotter, text="dprofile", text_color="#7AA7FF", justify=tkinter.LEFT, font=("", 9))
+dprof.place(x=32, y=87)
+
+procg = customtkinter.CTkLabel(fotter, text="23procg 2022", text_color="#FFFFFF", justify=tkinter.LEFT, font=("", 9))
+procg.place(x=32, y=114)
+ToolTip(procg, msg=":)", delay=0, fg="#FFFFFF", bg="#1C1D21")
+
+app.mainloop()
