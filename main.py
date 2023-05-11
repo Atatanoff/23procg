@@ -1,17 +1,121 @@
 import tkinter
 from tkinter import *
+import tkinter.constants
+from tkinter.messagebox import showinfo
 import customtkinter
 from tktooltip import ToolTip
 import ctypes as ct
+import time
+import random
+import os
+import serial.tools.list_ports
 
-def dark_title_bar(window):
-    window.update()
-    set_window_attribute = ct.windll.dwmapi.DwmSetWindowAttribute
-    get_parent = ct.windll.user32.GetParent
-    hwnd = get_parent(window.winfo_id())
-    value = 2
-    value = ct.c_int(value)
-    set_window_attribute(hwnd, 20, ct.byref(value),4)
+
+# Вспомогательный класс переменных и состояний
+class Value:
+    def __init__(self) -> None:
+        self.key = None        
+        self.d_name = dict()   #Коллекция кнопок и значений 
+        self.press_bt = None   #Нажатая кнопка
+        self.file_name = "key_page.txt"#Активное окно. Нужно для сохранения значений кнопок
+
+    # ф-ция форматирования текста кнопки
+    def get_text_button(self, data_to_send):
+        
+        name_bt = data_to_send.split('+')    
+        name_bt.pop(0)
+        text_bt = ''
+        for i in range(len(name_bt) - 1):
+            text_bt += name_bt[i] + '+' + '\n'
+        
+        if name_bt: text_bt += name_bt[-1][:-1]
+        return text_bt
+
+    
+
+
+# def dark_title_bar(window):
+#     window.update()
+#     set_window_attribute = ct.windll.dwmapi.DwmSetWindowAttribute
+#     get_parent = ct.windll.user32.GetParent
+#     hwnd = get_parent(window.winfo_id())
+#     value = 2
+#     value = ct.c_int(value)
+#     set_window_attribute(hwnd, 20, ct.byref(value),4)
+
+# велком текст
+welcome_txt = {
+    "morning": "Доброе утро",
+    "afternoon": "Добрый день",
+    "evening": "Добрый вечер",
+    "night": "Доброй ночи",
+    "awake": "Ты чё не спишь?"
+}
+t = time.localtime().tm_hour
+
+time_of_day = "awake"
+if 6 < t < 11:
+    time_of_day = "morning"
+elif 11 <= t < 16:
+    time_of_day = "afternoon"
+elif 16 <= t < 21:
+    time_of_day = "evening"
+elif 21 <= t < 24:
+    time_of_day = "night"
+
+
+
+#случайные высказывания
+random_txt = (
+    "work hard go pro",
+    "Work is not a wolf, it will not run away into the forest",
+    "Who does not work, he eats! Study student")
+
+
+name_file = 'data.txt'
+value = Value()
+text_about = "Текст: 'О нас'"
+
+# функция сохранения значния выбраной кнопки клавиатуры
+ 
+def button_function(arg: str, bt, button):
+
+    value.key = arg
+    if value.press_bt: value.press_bt.configure(fg_color='#FFFFFF')
+    value.press_bt = bt
+    
+    if button.cget('state') == 'disabled':
+        button.configure(state='active',fg_color='#B5F22F')
+    
+    bt.configure(fg_color='#8AB42F')
+
+
+# функция загрузки из конфигурационного файла
+def load_file(widg):
+    
+    if not os.path.isfile(value.file_name):
+        
+        f = open(value.file_name, 'w')
+        f.close()
+    with open(value.file_name, 'r') as f:        
+        for el in f.readlines():            
+            values = el.split()
+            button = values[0]            
+            
+            name = values[1]
+            
+            value.d_name[button] = name
+           
+            text_bt = value.get_text_button(name)
+            if not text_bt: text_bt = "Пусто"
+            
+            widg.nametowidget(button).configure(text=text_bt)
+
+# ф-ция открытия ссылок из подвала
+
+def open_link(url):
+    webbrowser.open_new(url)
+
 
 # главное окно
 app = customtkinter.CTk()
@@ -22,7 +126,7 @@ app.geometry("773x591")
 app.resizable(False, False)
 # app.overrideredirect(True)
 app.configure(fg_color='#444444')
-dark_title_bar(app)
+#dark_title_bar(app)
 import webbrowser
 
 
@@ -30,7 +134,7 @@ import webbrowser
 def Photoshop():
     # окно
     new_win_1 = customtkinter.CTkToplevel()
-    dark_title_bar(new_win_1)
+    #dark_title_bar(new_win_1)
     new_win_1.title('Photoshop')
     new_win_1.configure(bg='#1C1D21')
     new_win_1.geometry("400x300")
@@ -59,17 +163,18 @@ nav.configure(width=607, height=217, corner_radius=0)
 nav.place(x=175, y=375)
 
 # Надпись которая зависит от времяни открывания программы
-hello = customtkinter.CTkLabel(main, text="Доброе утро", text_color="#FFFFFF", font=("Arial blod", 15))
+
+hello = customtkinter.CTkLabel(main, text=welcome_txt[time_of_day], text_color="#FFFFFF", font=("Arial blod", 15))
 hello.place(relx=.5, rely=.5, anchor="c")
 # различные рандомные вырожения
-hello = customtkinter.CTkLabel(nav, text="work hard go pro", text_color="#777777", font=("blod", 10))
+hello = customtkinter.CTkLabel(nav, text=random.choice(random_txt), text_color="#777777", font=("blod", 10))
 hello.place(relx=.5, rely=.5, anchor="c")
-
 
 # Основня часть ввода клавишл
 
 # ввод крутилок, сделал отдельным окном
-def Enq_page():
+def Enq_page(button):
+    value.file_name = "Enq_page.txt"
     key_color = "#FFFFFF"
     key_hover = "#B5F22F"
     key_text_color = "#1C1D21"
@@ -105,41 +210,52 @@ def Enq_page():
                                        bg_color="#1C1D21")
     back_but.place(x=43, y=42)
 
-    key22 = customtkinter.CTkButton(Enq_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key22 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: button_function("key22", key22, button), corner_radius=8, width=70, height=70,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key22.place(x=151, y=156)
 
-    key23 = customtkinter.CTkButton(Enq_frame, text="Пусто", corner_radius=8, width=106, height=40,
+    key23 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: button_function("key23", key23, button), corner_radius=8, width=106, height=40,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key23.place(x=41, y=147)
 
-    key24 = customtkinter.CTkButton(Enq_frame, text="Пусто", corner_radius=8, width=106, height=40,
+    key24 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: button_function("key24", key24, button), corner_radius=8, width=106, height=40,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key24.place(x=41, y=190)
 
-    key25 = customtkinter.CTkButton(Enq_frame, text="Пусто", corner_radius=8, width=106, height=40,
+    key25 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: button_function("key25", key25, button), corner_radius=8, width=106, height=40,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key25.place(x=225, y=147)
 
-    key26 = customtkinter.CTkButton(Enq_frame, text="Пусто", corner_radius=8, width=106, height=40,
+    key26 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: button_function("key26", key26, button), corner_radius=8, width=106, height=40,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key26.place(x=225, y=190)
 
-    key27 = customtkinter.CTkButton(Enq_frame, text="Пусто", corner_radius=8, width=144, height=50,
+    key27 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: button_function("key27", key27, button), corner_radius=8, width=144, height=50,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key27.place(x=411, y=137)
 
-    key28 = customtkinter.CTkButton(Enq_frame, text="Пусто", corner_radius=8, width=144, height=50,
+    key28 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: button_function("key28", key28, button), corner_radius=8, width=144, height=50,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key28.place(x=411, y=190)
+
+    load_file(Enq_frame)
 
     Enq_frame.place(x=0, y=0)
 
 
 # ввод клавиш, также ентри код и бар готовых макросов
-def key_page():
+def key_page():                
+
+    value.file_name = "key_page.txt"
+    # менем выделение и цвет текста
+    led_menu_but.configure(fg_color = "#1C1D21")
+    key_menu_but.configure(fg_color = "#B5F22F")
+    key_menu_but.configure(text_color="#1C1D21")
+    led_menu_but.configure(text_color="#ffffff")
+    
     # ввод клавишь -----------------------------------------------------------------------------------------------
     # набор для замены цветов, размера шрифта, итд сразу у всехх клавиш
+    
     key_color = "#FFFFFF"
     key_hover = "#B5F22F"
     key_text_color = "#1C1D21"
@@ -152,102 +268,106 @@ def key_page():
     key0.place(x=21, y=24)
 
     # кнопки для входа в меню энкодера
-    Enq_key = customtkinter.CTkButton(key_frame, command=Enq_page, text=" ", corner_radius=105, width=70, height=70,
+    Enq_key = customtkinter.CTkButton(key_frame, command=lambda:Enq_page(button), text=" ", corner_radius=105, width=70, height=70,
                                       fg_color="#EFEFEF", hover_color=key_hover)
     Enq_key.place(x=42, y=38)
 
-    Enq_key2 = customtkinter.CTkButton(key_frame, command=Enq_page, text=" ", corner_radius=5, width=160, height=40,
+    Enq_key2 = customtkinter.CTkButton(key_frame, command=lambda:Enq_page(button), text=" ", corner_radius=5, width=160, height=40,
                                        fg_color="#EFEFEF", hover_color=key_hover)
     Enq_key2.place(x=145, y=55)
 
     # клавишы
-    key1 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key1 = customtkinter.CTkButton(key_frame, command=lambda: button_function("$key18", key1, button), text="Пусто", corner_radius=8, width=70, height=70,
                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key1.place(x=337, y=43)
 
     ToolTip(key1, msg="Ctrl+Alt+e | Ctrl+Alt+shift+e", delay=0, fg="#B5F22F", bg="#1C1D21")
 
-    key2 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key2 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key19", key2, button), corner_radius=8, width=70, height=70,
                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key2.place(x=411, y=43)
 
-    key3 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key3 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key20", key3, button), corner_radius=8, width=70, height=70,
                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key3.place(x=485, y=43)
 
-    key4 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key4 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key1", key4, button), corner_radius=8, width=70, height=70,
                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key4.place(x=41, y=116)
 
-    key5 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key5 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key5", key5, button), corner_radius=8, width=70, height=70,
                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key5.place(x=115, y=116)
 
-    key6 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key6 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key6", key6, button),  corner_radius=8, width=70, height=70,
                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key6.place(x=189, y=116)
 
-    key7 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key7 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key9", key7, button), corner_radius=8, width=70, height=70,
                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key7.place(x=263, y=116)
 
-    key8 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key8 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key10", key8, button), corner_radius=8, width=70, height=70,
                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key8.place(x=337, y=116)
 
-    key9 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key9 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key14", key9, button), corner_radius=8, width=70, height=70,
                                    fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key9.place(x=411, y=116)
 
-    key10 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key10 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key21", key10, button), corner_radius=8, width=70, height=70,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key10.place(x=485, y=116)
 
-    key11 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=144, height=70,
+    key11 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key2", key11, button), corner_radius=8, width=144, height=70,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key11.place(x=41, y=189)
 
-    key12 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key12 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key7", key12, button), corner_radius=8, width=70, height=70,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key12.place(x=189, y=189)
 
-    key13 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key13 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key11", key13, button), corner_radius=8, width=70, height=70,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key13.place(x=263, y=189)
 
-    key14 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key14 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key12", key14, button), corner_radius=8, width=70, height=70,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key14.place(x=337, y=189)
 
-    key15 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key15 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key15", key15, button), corner_radius=8, width=70, height=70,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key15.place(x=411, y=189)
 
-    key16 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=144,
+    key16 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key17", key16, button), corner_radius=8, width=70, height=144,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key16.place(x=485, y=189)
 
-    key17 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key17 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key3", key17, button), corner_radius=8, width=70, height=70,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key17.place(x=41, y=262)
 
-    key18 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key18 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key4", key18, button), corner_radius=8, width=70, height=70,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key18.place(x=115, y=262)
 
-    key19 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key19 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key8", key19, button), corner_radius=8, width=70, height=70,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key19.place(x=189, y=262)
 
-    key20 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=144, height=70,
+    key20 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key13", key20, button), corner_radius=8, width=144, height=70,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key20.place(x=263, y=262)
 
-    key21 = customtkinter.CTkButton(key_frame, text="Пусто", corner_radius=8, width=70, height=70,
+    key21 = customtkinter.CTkButton(key_frame, text="Пусто", command=lambda: button_function("$key16", key21, button), corner_radius=8, width=70, height=70,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key21.place(x=411, y=262)
 
+
+    load_file(key_frame)
+
     key_frame.place(x=0, y=0)
+
 
     # окно для работы с кнопками
     entry_frame = customtkinter.CTkFrame(nav, width=607, height=217, corner_radius=0, fg_color="#1C1D21")
@@ -357,98 +477,160 @@ def key_page():
     checkbox.place(x=142, y=159)
 
     F10 = StringVar()
-    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=E, offvalue='', text_color="#B5F22F", text="F10",
+    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=F10, offvalue='', text_color="#B5F22F", text="F10",
                                          fg_color="#B5F22F", hover_color="#B5F22F", checkmark_color="#313335",
                                          bg_color="#1C1D21", width=70, checkbox_width=13, checkbox_height=13,
                                          border_width=1, corner_radius=3)
     checkbox.place(x=238, y=78)
 
     F11 = StringVar()
-    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=B, offvalue='', text_color="#B5F22F", text="F11",
+    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=F11, offvalue='', text_color="#B5F22F", text="F11",
                                          fg_color="#B5F22F", hover_color="#B5F22F", checkmark_color="#313335",
                                          bg_color="#1C1D21", width=70, checkbox_width=13, checkbox_height=13,
                                          border_width=1, corner_radius=3)
     checkbox.place(x=238, y=105)
 
     Sp = StringVar()
-    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=En, offvalue='', text_color="#B5F22F", text="Space",
+    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=Sp, offvalue='', text_color="#B5F22F", text="Space",
                                          fg_color="#B5F22F", hover_color="#B5F22F", checkmark_color="#313335",
                                          bg_color="#1C1D21", width=70, checkbox_width=13, checkbox_height=13,
                                          border_width=1, corner_radius=3)
     checkbox.place(x=238, y=132)
 
     Cm = StringVar()
-    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=D, offvalue='', text_color="#B5F22F", text="Comm",
+    checkbox = customtkinter.CTkCheckBox(entry_frame, variable=Cm, offvalue='', text_color="#B5F22F", text="Comm",
                                          fg_color="#B5F22F", hover_color="#B5F22F", checkmark_color="#313335",
                                          bg_color="#1C1D21", width=70, checkbox_width=13, checkbox_height=13,
                                          border_width=1, corner_radius=3)
     checkbox.place(x=238, y=159)
 
-    namekey = "key0000"
+    #namekey = "key0000"
+
+    def ser_write(data):
+        f_port = None
+        print('Search...')
+        ports = serial.tools.list_ports.comports()
+        if not ports:
+            print("Ports not found")
+            print("Возможно нет СОМ портов или не установлены драйвера")
+            return
+
+        for port in ports:
+            if port.pid: f_port = port
+            print('Find port ' + port.device)
+
+        if not f_port:
+            print("Device not found")
+            print("Проверьте правильность подключения устройства в порт и попробуйте еще раз")
+            return
+
+        ser = serial.Serial(f_port.device)
+
+        if ser.isOpen():
+            ser.close()
+
+        ser = serial.Serial(f_port.device, 9600, timeout=1)
+        ser.flushInput()
+        ser.flushOutput()
+        print('Connect ' + ser.name)
+
+        ser.write(data.encode())
+        print(data)
+        print("Закрываю порт...")
+        ser.close()
 
     # Работа чекбоксов
     def save():
-        name = entry.get()
-        entrycode = (f'{name}')
-
-        if entry.get():
-            name = "+" + entrycode
-        else:
-            name = ""
+        name = ""
 
         if (C.get()):
-            namec = "+Ctrl"
-        else:
-            namec = ""
+            name += "+Ctrl"
+            C.set("")            
 
         if (A.get()):
-            namea = "+Alt"
-        else:
-            namea = ""
+            name += "+Alt"
+            A.set("")            
 
         if (S.get()):
-            names = "+Shift"
-        else:
-            names = ""
+            name += "+Shift"
+            S.set("")
 
         if (T.get()):
-            namet = "+Tab"
-        else:
-            namet = ""
+            name += "+Tab"
+            T.set("")
+
         if (E.get()):
-            namec = "+Esc"
-        else:
-            namec = ""
+            name += "+Esc"
+            E.set("")
 
         if (B.get()):
-            namea = "+Bac"
-        else:
-            namea = ""
+            name += "+Bac"
+            B.set("")
 
         if (En.get()):
-            names = "+Enter"
-        else:
-            names = ""
+            name += "+Enter"
+            En.set("")
 
         if (D.get()):
-            namet = "+Del"
-        else:
-            namet = ""
+            name += "+Del"
+            D.set("")
 
-        dataToSend = "$" + namekey + namec + namea + names + namet + name + ";"
-        print(dataToSend)
+        if (F10.get()):
+            name += "+F10"
+            F10.set("")
+
+        if (F11.get()):
+            name += "+F11"
+            F11.set("")
+
+        if (Sp.get()):
+            name += "+Space"
+            Sp.set("")
+
+        if (Cm.get()):
+            name += "+Comm"
+            Cm.set("")
+
+        if entry.get():
+            name += f"+{entry.get()}"
+
+        dataToSend = value.key + name + ";"
+        value.press_bt.configure(text=value.get_text_button(dataToSend))
+
+        value.d_name[value.press_bt.winfo_name()] = dataToSend
+        entry.delete(0, tkinter.constants.END)
+        button.configure(state='disabled', fg_color='#66871E')
+        value.press_bt.configure(fg_color='#FFFFFF') 
+              
+
+        with open(value.file_name, 'w') as f:
+            for key in value.d_name:
+                print(key, value.d_name[key], file=f)
+
+               
+        ser_write(dataToSend)
+        
 
     # кнопка сохронить
-    button = customtkinter.CTkButton(entry_frame, command=save, text="Сохранить", text_color="#1C1D21",
+    button = customtkinter.CTkButton(entry_frame, command=lambda: save(), text="Сохранить", text_color="#1C1D21",
                                      fg_color='#66871E',
-                                     hover_color="#B5F22F", corner_radius=8, width=113, height=30, bg_color="#1C1D21")
+                                     corner_radius=8, width=113, height=30, bg_color="#1C1D21",
+                                     state="disabled")
     button.place(x=441, y=146)
+
+    
 
     entry_frame.place(x=0, y=0)
 
 
+
+
 # Смена лед подсветки -------------------------------------------------------------------------------------
 def led_page():
+    led_menu_but.configure(fg_color = "#B5F22F")
+    key_menu_but.configure(fg_color = "#1C1D21")
+    key_menu_but.configure(text_color="#ffffff")
+    led_menu_but.configure(text_color="#1C1D21")
     # ввод клавишь -----------------------------------------------------------------------------------------------
     # цвета для всех клавиш
     workc= "#B5F22F" #цвет выбранный пользователем
@@ -735,14 +917,15 @@ def led_page():
 
 
 # кнопки меню ----------------------------------------------------------------------------------------------------
-led_menu_but = customtkinter.CTkButton(menu, command=led_page, text="Подсветка", text_color="#1C1D21",
-                                       fg_color='#B5F22F',
-                                       hover_color="#B5F22F", corner_radius=8, width=113, height=30, bg_color="#1C1D21")
+
+# 451
+led_menu_but = customtkinter.CTkButton(menu, command=led_page, text="Подсветка", text_color="#ffffff",
+                                       hover_color="#B5F22F", corner_radius=8, width=113, height=30, fg_color="#1C1D21")
 led_menu_but.place(x=31, y=82)
 
-key_menu_but = customtkinter.CTkButton(menu, command=key_page, text="Ввод макросов", text_color="#1C1D21",
-                                       fg_color='#B5F22F',
-                                       hover_color="#B5F22F", corner_radius=8, width=113, height=30, bg_color="#1C1D21")
+# 140
+key_menu_but = customtkinter.CTkButton(menu, command=key_page, text="Ввод макросов", text_color="#ffffff",
+                                       hover_color="#B5F22F", corner_radius=8, width=113, height=30, fg_color="#1C1D21")
 key_menu_but.place(x=31, y=42)
 # подсказки
 ToolTip(key_menu_but, msg="Замена функций клавишь", delay=0, fg="#B5F22F", bg="#1C1D21")
@@ -750,12 +933,15 @@ ToolTip(led_menu_but, msg="Замена цвета подсветки", delay=0,
 
 # Подвал     ----------------------------------------------------------------------------------------------------
 about = customtkinter.CTkLabel(fotter, text="О нас", text_color="#FFFFFF", justify=tkinter.LEFT, font=("", 9))
+about.bind("<Button-1>", lambda event: showinfo(title="Информация", message=text_about))
 about.place(x=32, y=33)
 
 telega = customtkinter.CTkLabel(fotter, text="telegram", text_color="#7AA7FF", justify=tkinter.LEFT, font=("", 9))
+telega.bind("<Button-1>", lambda event: open_link(r"https://t.me/shakirovnz"))
 telega.place(x=32, y=58)
 
 dprof = customtkinter.CTkLabel(fotter, text="dprofile", text_color="#7AA7FF", justify=tkinter.LEFT, font=("", 9))
+dprof.bind("<Button-1>", lambda event: open_link(r"https://www.behance.net/shakirovnz"))
 dprof.place(x=32, y=87)
 
 procg = customtkinter.CTkLabel(fotter, text="23procg 2022", text_color="#FFFFFF", justify=tkinter.LEFT, font=("", 9))
