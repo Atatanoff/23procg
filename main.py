@@ -9,29 +9,7 @@ import time
 import random
 import os
 import serial.tools.list_ports
-
-
-# Вспомогательный класс переменных и состояний
-class Value:
-    def __init__(self) -> None:
-        self.key = None        
-        self.d_name = dict()   #Коллекция кнопок и значений 
-        self.press_bt = None   #Нажатая кнопка
-        self.file_name = "key_page.txt"#Активное окно. Нужно для сохранения значений кнопок
-
-    # ф-ция форматирования текста кнопки
-    def get_text_button(self, data_to_send):
-        
-        name_bt = data_to_send.split('+')    
-        name_bt.pop(0)
-        text_bt = ''
-        for i in range(len(name_bt) - 1):
-            text_bt += name_bt[i] + '+' + '\n'
-        
-        if name_bt: text_bt += name_bt[-1][:-1]
-        return text_bt
-
-    
+from Utils import *
 
 
 # def dark_title_bar(window):
@@ -79,7 +57,7 @@ text_about = "Текст: 'О нас'"
 # функция сохранения значния выбраной кнопки клавиатуры
  
 def button_function(arg: str, bt, button):
-
+    print(bt.winfo_name())
     value.key = arg
     if value.press_bt: value.press_bt.configure(fg_color='#FFFFFF')
     value.press_bt = bt
@@ -270,10 +248,12 @@ def key_page():
     # кнопки для входа в меню энкодера
     Enq_key = customtkinter.CTkButton(key_frame, command=lambda:Enq_page(button), text=" ", corner_radius=105, width=70, height=70,
                                       fg_color="#EFEFEF", hover_color=key_hover)
+    #print(Enq_key.winfo_name())
     Enq_key.place(x=42, y=38)
 
     Enq_key2 = customtkinter.CTkButton(key_frame, command=lambda:Enq_page(button), text=" ", corner_radius=5, width=160, height=40,
                                        fg_color="#EFEFEF", hover_color=key_hover)
+    #print(Enq_key2.winfo_name())
     Enq_key2.place(x=145, y=55)
 
     # клавишы
