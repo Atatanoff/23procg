@@ -4,3 +4,7 @@ ex*
 data/
 test.py
 ui.py
+*.txt
+.idea/
+log/
+
