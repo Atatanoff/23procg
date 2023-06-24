@@ -1,4 +1,6 @@
 import os
+import customtkinter
+from loguru import logger
 
 
 # Вспомогательный класс переменных и состояний
@@ -6,8 +8,10 @@ class Value:
     def __init__(self) -> None:
         self.key = None        
         self.d_name = dict()   #Коллекция кнопок и значений 
-        self.press_bt = None   #Нажатая кнопка
-        self.file_name = "key_page.txt"#Активное окно. Нужно для сохранения значений кнопок
+        self.press_bt: customtkinter.CTkButton = None   #Нажатая кнопка
+        self.file_name = None #Активное окно. Нужно для сохранения значений кнопок
+        self.chboxs: dict[customtkinter.CTkCheckBox] = dict() #Чекбоксы   
+        self.ph: customtkinter.CTkButton = None
 
     # ф-ция форматирования текста кнопки
     def get_text_button(self, data_to_send):
@@ -19,25 +23,33 @@ class Value:
             text_bt += name_bt[i] + '+' + '\n'
         
         if name_bt: text_bt += name_bt[-1][:-1]
+        
         return text_bt
-
+    #обработка чекбоксов
+    def chboxduble(self, var):
+        
+        self.chboxs[var].deselect()
 
 # функция сохранения значния выбраной кнопки клавиатуры
  
-def button_function(arg: str, bt, button):
-    print(bt.winfo_name())
-    value.key = arg
-    if value.press_bt: value.press_bt.configure(fg_color='#FFFFFF')
-    value.press_bt = bt
-    
-    if button.cget('state') == 'disabled':
-        button.configure(state='active',fg_color='#B5F22F')
-    
-    bt.configure(fg_color='#8AB42F')
+    def button_function(self, arg: str, bt: customtkinter.CTkButton, button: customtkinter.CTkButton):
+   
+        self.key = arg
+        if self.press_bt: self.press_bt.configure(fg_color='#FFFFFF')
+        self.press_bt = bt
 
+        if self.ph.cget('state') == 'disabled':
+            self.ph.configure(state='active')
+        
+        if button.cget('state') == 'disabled':
+            button.configure(state='active',fg_color='#B5F22F')
+        
+        
+        bt.configure(fg_color='#8AB42F')
 
 # функция загрузки из конфигурационного файла
-def load_file(widg):
+@logger.catch
+def load_file(widg: customtkinter.CTkFrame, value: Value):
     
     if not os.path.isfile(value.file_name):
         
@@ -56,3 +68,5 @@ def load_file(widg):
             if not text_bt: text_bt = "Пусто"
             
             widg.nametowidget(button).configure(text=text_bt)
+
+
