@@ -24,4 +24,4 @@ text_about = "Текст: 'О нас'"
 #                   "key_double.txt")
 
 select_activity = ("key", "enq") #активное акно
-mode = ("one", "hold", "double") #режим зажатия кнопок
+mode = ("+one", "+hold", "+double") #режим зажатия кнопок

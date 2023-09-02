@@ -1,17 +1,18 @@
 import customtkinter
 import tkinter
 
-from utils.Utils import savemacro, Value, save
+from utils.Utils import save, select_mode
+from utils.value import Value
 import activity
 import res
 
 
-def select_mode(mode):
+
     
 
-def entry_page(nav, value: Value, led_menu_but, key_menu_but, main):
+def entry_page(value: Value):
     # окно для работы с кнопками
-    entry_frame = customtkinter.CTkFrame(nav, width=607, height=217, corner_radius=0, fg_color="#1C1D21")
+    entry_frame = customtkinter.CTkFrame(value.nav, width=607, height=217, corner_radius=0, fg_color="#1C1D21")
 
     # бар с готовыеми макрос наборами
     toolbar = customtkinter.CTkScrollableFrame(master=entry_frame, scrollbar_button_color="#303135", fg_color="#1C1D21",
@@ -150,23 +151,28 @@ def entry_page(nav, value: Value, led_menu_but, key_menu_but, main):
 
     custom_font = ("Arial", 9,)
 
-    button_ok = customtkinter.CTkButton(mode_frame, text="Одно нажатие", command=lambda: activity.key_page(value, led_menu_but, key_menu_but, main, nav, res.mode[0]), font=custom_font, text_color="#FFFFFF",
+    button_ok = customtkinter.CTkButton(mode_frame, text="Одно нажатие", command=lambda: select_mode(value, button_ok, res.mode[0]), font=custom_font, text_color="#FFFFFF",
                                      fg_color='#1C1D21', hover_color="#AA61EC",
                                      corner_radius=7, width=73, height=30, bg_color="#303135")
     button_ok.place(x=3, y=3)
+    if not value.press_mode:
+        value.press_mode = button_ok
+        button_ok.configure(fg_color="#AA61EC")
 
-    button_ho = customtkinter.CTkButton(mode_frame, text="Удержание", command=lambda: activity.key_page(value, led_menu_but, key_menu_but, main, nav, res.mode[1]), font=custom_font, text_color="#FFFFFF",
+    button_ho = customtkinter.CTkButton(mode_frame, text="Удержание", command=lambda: select_mode(value, button_ho, res.mode[1]), font=custom_font, text_color="#FFFFFF",
                                         fg_color='#1C1D21',hover_color="#AA61EC",
                                         corner_radius=7, width=73, height=30, bg_color="#303135")
     button_ho.place(x=83, y=3)
 
-    button_dk = customtkinter.CTkButton(mode_frame, text="Два нажатия", command=lambda: activity.key_page(value, led_menu_but, key_menu_but, main, nav, res.mode[2]), font=custom_font, text_color="#FFFFFF",
+    button_dk = customtkinter.CTkButton(mode_frame, text="Два нажатия", command=lambda: select_mode(value, button_dk, res.mode[2]), font=custom_font, text_color="#FFFFFF",
                                         fg_color='#1C1D21',hover_color="#AA61EC",
                                         corner_radius=7, width=73, height=30, bg_color="#303135")
     button_dk.place(x=161, y=3)
     
+    value.buttons_mode = (button_ok, button_ho, button_dk)
+
     # кнопка сброс
-    value.clear_bt = customtkinter.CTkButton(entry_frame, text="Очистить", text_color="#FFFFFF",
+    value.clear_bt = customtkinter.CTkButton(entry_frame, command=lambda: save(value), text="Очистить", text_color="#FFFFFF",
                                      fg_color='#1C1D21', hover_color="#AA61EC",
                                      corner_radius=8, width=113, height=30, bg_color="#1C1D21",
                                      state="disabled")

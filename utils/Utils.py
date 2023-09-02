@@ -8,48 +8,15 @@ from loguru import logger
 import res
 
 
-# Вспомогательный класс переменных и состояний
-class Value:
-    def __init__(self) -> None:
-        self.key = None                                 #значение нажатой кнопки
-        self.d_name = dict()                            #Коллекция кнопок и значений 
-        self.press_bt: customtkinter.CTkButton = None   #Нажатая кнопка
-        self.save_bt: customtkinter.CTkButton = None
-        self.clear_bt: customtkinter.CTkButton = None
-        self.file_name = None                           #Активное окно. Нужно для сохранения значений кнопок 
-        self.ph: customtkinter.CTkButton = None
-        self.state_nav = False                          #состояние навбара
-        self.list_var = dict()                          #словарь переменных выделенных чекбоксов
-        self.entry_var = None                           #значение поля ентри
-        self.mode = None                                #режим
-
-    # ф-ция форматирования текста кнопки
-    def get_text_button(self, data_to_send):        
-        name_bt = data_to_send.split('+')    
-        name_bt.pop(0)
-        text_bt = ''
-        for i in range(len(name_bt) - 1):
-            text_bt += name_bt[i] + '+' + '\n'        
-        if name_bt: text_bt += name_bt[-1][:-1]        
-        return text_bt
-
-# функция сохранения значния выбраной кнопки клавиатуры
-    def button_function(self, arg: str, bt: customtkinter.CTkButton):   
-        self.key = arg
-        if self.press_bt: self.press_bt.configure(fg_color='#FFFFFF')
-        self.press_bt = bt
-
-        if self.ph.cget('state') == 'disabled':
-            self.ph.configure(state='active')
-        
-        if self.save_bt.cget('state') == 'disabled':
-            self.save_bt.configure(state='active',fg_color='#B5F22F')       
-        
-        bt.configure(fg_color='#8AB42F')
+def select_mode(value, bt = None, mode=res.mode[0]):
+    value.press_mode.configure(fg_color='#1C1D21')
+    value.press_mode = bt if bt else value.buttons_mode[0]
+    value.press_mode.configure(fg_color="#AA61EC")
+    value.activity(value, mode)
 
 # функция загрузки из конфигурационного файла
 
-def load_file(widg: customtkinter.CTkFrame, value: Value):    
+def load_file(widg: customtkinter.CTkFrame, value):    
     if not os.path.isfile(value.file_name):        
         f = open(value.file_name, 'w')
         f.close()
@@ -64,12 +31,22 @@ def load_file(widg: customtkinter.CTkFrame, value: Value):
             if not text_bt: text_bt = "Пусто"            
             widg.nametowidget(button).configure(text=text_bt)
 
+def load_file2(widg: customtkinter.CTkFrame, value):
+    data = get_data()      
+    for el in data:            
+        button = el[0]           
+        name = el[1]            
+        value.d_name[button] = name           
+        text_bt = value.get_text_button(name)
+        if not text_bt: text_bt = "Пусто"            
+        widg.nametowidget(button).configure(text=text_bt)
+
 # ф-ция открытия ссылок из подвала
 def open_link(url):
     webbrowser.open_new(url)
 
 # ф-ция записи в порт
-def ser_write(data):
+def ser_write(data):   
     f_port = None
     print('Search...')
     ports = serial.tools.list_ports.comports()
@@ -103,7 +80,7 @@ def ser_write(data):
     ser.close()
 
 #ф-ция сохранения 
-def save(value: Value):
+def save(value):
     name = "" 
 
     for key, item in value.list_var.items():
@@ -117,16 +94,52 @@ def save(value: Value):
     savemacro(value, name)
 
 
-def savemacro(value: Value, name):
+def savemacro(value, name):
     dataToSend = value.key + value.mode + name + ";"
+    #text_bt = value.get_text_button(dataToSend)
     value.press_bt.configure(text=value.get_text_button(dataToSend))
+    #value.press_bt.configure(text=name)
     value.d_name[value.press_bt.winfo_name()] = dataToSend   
     #entry.delete(0, tkinter.constants.END)
     value.entry_var.set("")
     value.save_bt.configure(state='disabled', fg_color='#66871E')
+    value.clear_bt.configure(state='disabled')
     value.ph.configure(state='disabled')
     value.press_bt.configure(fg_color='#FFFFFF')           
 
+    with open(value.file_name, 'w') as f:
+        for key in value.d_name:
+            print(key, value.d_name[key], file=f)
+                    
+    ser_write(dataToSend)
+
+def savemacros2(value, name=None, icon = None, color = None):
+    dataToSend = value.key + value.mode + name + ";"
+    #text_bt = value.get_text_button(dataToSend)
+    #value.press_bt.configure(text=name)
+
+    '''
+    если текст (название либо макрос) то присваиваем
+    текст, иначе назначаем иконку, если есть цвет, то меням цвет
+    '''
+    if name:
+        value.press_bt.configure(text=value.get_text_button(dataToSend))
+    else:
+        value.press_bt.configure(text='')
+        value.press_bt.configure(image=icon)
+    if color:
+        value.press_bt.configure(fg_color=color)
+    value.d_name[value.press_bt.winfo_name()] = dataToSend   
+    #entry.delete(0, tkinter.constants.END)
+    value.entry_var.set("")
+    value.save_bt.configure(state='disabled', fg_color='#66871E')
+    value.clear_bt.configure(state='disabled')
+    value.ph.configure(state='disabled')
+    value.press_bt.configure(fg_color='#FFFFFF')           
+
+    '''
+    этот блок меняем на запись в бд
+    '''
     with open(value.file_name, 'w') as f:
         for key in value.d_name:
             print(key, value.d_name[key], file=f)

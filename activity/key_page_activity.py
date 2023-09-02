@@ -1,22 +1,24 @@
 import customtkinter
 from tktooltip import ToolTip
 
-from utils.Utils import load_file, Value
+from utils.Utils import load_file
 import activity
 import res
 
 
 
-def key_page(value: Value, led_menu_but, key_menu_but, main, nav, mode=res.mode[0]):
+def key_page(value, mode=res.mode[0]):
+    #запись состояний активного окна
     value.mode = mode
+    value.activity = key_page
     if value.save_bt: value.save_bt.configure(state='disabled', fg_color='#66871E')                
     value.d_name = dict()
     value.file_name = f"data/{res.select_activity[0]}_{mode}.txt"
     # менем выделение и цвет текста
-    led_menu_but.configure(fg_color = "#1C1D21")
-    key_menu_but.configure(fg_color = "#B5F22F")
-    key_menu_but.configure(text_color="#1C1D21")
-    led_menu_but.configure(text_color="#ffffff")
+    value.led_menu_but.configure(fg_color = "#1C1D21")
+    value.key_menu_but.configure(fg_color = "#B5F22F")
+    value.key_menu_but.configure(text_color="#1C1D21")
+    value.led_menu_but.configure(text_color="#ffffff")
     
     # ввод клавишь -----------------------------------------------------------------------------------------------
     # набор для замены цветов, размера шрифта, итд сразу у всехх клавиш
@@ -25,7 +27,14 @@ def key_page(value: Value, led_menu_but, key_menu_but, main, nav, mode=res.mode[
     key_hover = "#B5F22F"
     key_text_color = "#1C1D21"
     key_font = ("", 10)
-    key_frame = customtkinter.CTkFrame(main, width=598, height=374, corner_radius=0, fg_color="#1C1D21")
+
+    #активация кнопок выбора режима
+    for el in value.buttons_mode:
+        el.configure(state='active')
+    if mode == res.mode[0]: pass
+    
+
+    key_frame = customtkinter.CTkFrame(value.main, width=598, height=374, corner_radius=0, fg_color="#1C1D21")
 
     key0 = customtkinter.CTkButton(key_frame, text="", corner_radius=29, width=556, height=331, border_width=1,
                                 border_color="#444444",
@@ -33,12 +42,12 @@ def key_page(value: Value, led_menu_but, key_menu_but, main, nav, mode=res.mode[
     key0.place(x=21, y=24)
 
     # кнопки для входа в меню энкодера
-    Enq_key = customtkinter.CTkButton(key_frame, command=lambda:activity.Enq_page(value, main, key_page, led_menu_but, key_menu_but, nav, res.data_file_name_enq[0]), text=" ", corner_radius=105, width=70, height=70,
+    Enq_key = customtkinter.CTkButton(key_frame, command=lambda:activity.Enq_page(value, key_page), text=" ", corner_radius=105, width=70, height=70,
                                     fg_color="#EFEFEF", hover_color=key_hover)
     #print(Enq_key.winfo_name())
     Enq_key.place(x=42, y=38)
 
-    Enq_key2 = customtkinter.CTkButton(key_frame, command=lambda:activity.Enq_page(value, main, key_page, led_menu_but, key_menu_but, nav, res.data_file_name_enq[0]), text=" ", corner_radius=5, width=160, height=40,
+    Enq_key2 = customtkinter.CTkButton(key_frame, command=lambda:activity.Enq_page(value, key_page), text=" ", corner_radius=5, width=160, height=40,
                                     fg_color="#EFEFEF", hover_color=key_hover)
     #print(Enq_key2.winfo_name())
     Enq_key2.place(x=145, y=55)
@@ -137,5 +146,5 @@ def key_page(value: Value, led_menu_but, key_menu_but, main, nav, mode=res.mode[
     
     if not value.state_nav:
         value.state_nav = True
-        activity.entry_page(nav, value, led_menu_but, key_menu_but, main)
+        activity.entry_page(value)
         

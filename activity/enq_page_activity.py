@@ -1,22 +1,26 @@
-from loguru import logger
 import customtkinter
 
-from utils.Utils import load_file, Value
+from utils.Utils import select_mode, load_file
 import res
 
 
 # ввод крутилок, сделал отдельным окном
-@logger.catch
-def Enq_page(value: Value, main, key_page, led_menu_but, key_menu_but, nav, mode=res.mode[0]):
-    value.mode = mode
+def Enq_page(value, key_page):
+    #запись состояний активного окна
+    #value.activity = None
     value.save_bt.configure(state='disabled', fg_color='#66871E')
     value.d_name = dict()
-    value.file_name = f"data/{res.select_activity[1]}_{mode}.txt"
+    value.file_name = f"data/{res.select_activity[1]}.txt"
     key_color = "#FFFFFF"
     key_hover = "#B5F22F"
     key_text_color = "#1C1D21"
     key_font = ("", 10)
-    Enq_frame = customtkinter.CTkFrame(main, width=598, height=374, corner_radius=0, fg_color="#1C1D21")
+
+    #дезактивация кнопок выбора режима
+    for el in value.buttons_mode:
+        el.configure(state='disabled')
+
+    Enq_frame = customtkinter.CTkFrame(value.main, width=598, height=374, corner_radius=0, fg_color="#1C1D21")
 
     inf_text = customtkinter.CTkLabel(Enq_frame, text="крутить\nв лево", text_color="#777777", font=("blod", 10))
     inf_text.place(x=77, y=114)
@@ -41,7 +45,7 @@ def Enq_page(value: Value, main, key_page, led_menu_but, key_menu_but, nav, mode
     inf_text = customtkinter.CTkLabel(Enq_frame, text="крутить в низ", text_color="#777777", font=("blod", 10))
     inf_text.place(x=451, y=241)
 
-    back_but = customtkinter.CTkButton(Enq_frame, command=lambda: key_page(value, led_menu_but, key_menu_but, main, nav), text="вернутся", text_color="#FFFFFF",
+    back_but = customtkinter.CTkButton(Enq_frame, command=lambda: select_mode(value), text="вернутся", text_color="#FFFFFF",
                                        fg_color='#303135',
                                        hover_color="#515358", corner_radius=8, width=76, height=25,
                                        bg_color="#1C1D21")

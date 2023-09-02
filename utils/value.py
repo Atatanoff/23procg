@@ -1,0 +1,52 @@
+import customtkinter
+from loguru import logger
+
+
+# Вспомогательный класс переменных и состояний
+class Value:
+    def __init__(self) -> None:
+        self.key = None                                 #значение нажатой кнопки
+        self.d_name = dict()                            #Коллекция кнопок и значений 
+        self.press_bt: customtkinter.CTkButton = None   #Нажатая кнопка
+        self.save_bt: customtkinter.CTkButton = None
+        self.clear_bt: customtkinter.CTkButton = None
+        self.activity = None                            #активное окно
+        self.file_name = None                           #Путь к файлу значений кнопок активного окна
+        self.ph: customtkinter.CTkButton = None
+        self.state_nav = False                          #состояние навбара
+        self.list_var = dict()                          #словарь переменных выделенных чекбоксов
+        self.entry_var = None                           #значение поля ентри
+        self.press_mode = None                          #нажатая кнопка выбора режима
+        self.buttons_mode = ()                          #кнопки выбора режимов
+
+        #фреймы
+        self.main = None
+        self.led_menu_but = None
+        self.key_menu_but = None
+        self.nav = None
+
+    # ф-ция форматирования текста кнопки
+    def get_text_button(self, data_to_send):        
+        name_bt = data_to_send.split('+')[2:]    
+        #name_bt.pop(0)
+        text_bt = ''
+        #for i in range(len(name_bt) - 1):
+            #text_bt += name_bt[i] + '+' + '\n'        
+        #if name_bt: text_bt += name_bt[-1][:-1]
+        if name_bt: text_bt = "+\n".join(name_bt)[:-1]        
+        return text_bt
+
+# функция сохранения значния выбраной кнопки клавиатуры
+    def button_function(self, arg: str, bt: customtkinter.CTkButton):   
+        self.key = arg
+        if self.press_bt: self.press_bt.configure(fg_color='#FFFFFF')
+        self.press_bt = bt
+
+        if self.ph.cget('state') == 'disabled':
+            self.ph.configure(state='active')
+        
+        if self.save_bt.cget('state') == 'disabled':
+            self.save_bt.configure(state='active',fg_color='#B5F22F')
+            self.clear_bt.configure(state='active')        
+        
+        bt.configure(fg_color='#8AB42F')

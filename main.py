@@ -6,7 +6,8 @@ import customtkinter
 from tktooltip import ToolTip
 import random
 
-from utils.Utils import *
+from utils.Utils import open_link, time_of_day
+from utils.value import Value
 from res import *
 import activity
 
@@ -48,36 +49,36 @@ def run():
     fotter.configure(width=175, height=176, corner_radius=0)
     fotter.place(x=0, y=415)
 
-    main = customtkinter.CTkFrame(master=app, fg_color="#1C1D21")
-    main.configure(width=598, height=374, corner_radius=0)
-    main.place(x=175, y=0)
+    value.main = customtkinter.CTkFrame(master=app, fg_color="#1C1D21")
+    value.main.configure(width=598, height=374, corner_radius=0)
+    value.main.place(x=175, y=0)
 
-    nav = customtkinter.CTkFrame(master=app, fg_color="#1C1D21")
-    nav.configure(width=607, height=217, corner_radius=0)
-    nav.place(x=175, y=375)
+    value.nav = customtkinter.CTkFrame(master=app, fg_color="#1C1D21")
+    value.nav.configure(width=607, height=217, corner_radius=0)
+    value.nav.place(x=175, y=375)
 
     # Надпись которая зависит от времяни открывания программы
 
-    hello = customtkinter.CTkLabel(main, text=welcome_txt[time_of_day()], text_color="#FFFFFF", font=("Arial blod", 15))
+    hello = customtkinter.CTkLabel(value.main, text=welcome_txt[time_of_day()], text_color="#FFFFFF", font=("Arial blod", 15))
     hello.place(relx=.5, rely=.5, anchor="c")
     # различные рандомные вырожения
-    hello = customtkinter.CTkLabel(nav, text=random.choice(random_txt), text_color="#777777", font=("blod", 10))
+    hello = customtkinter.CTkLabel(value.nav, text=random.choice(random_txt), text_color="#777777", font=("blod", 10))
     hello.place(relx=.5, rely=.5, anchor="c")
 
 # кнопки меню ----------------------------------------------------------------------------------------------------
 
     # 451
-    led_menu_but = customtkinter.CTkButton(menu, command=lambda:activity.led_page(led_menu_but, key_menu_but, main, nav, value), text="Подсветка", text_color="#ffffff",
+    value.led_menu_but = customtkinter.CTkButton(menu, command=lambda:activity.led_page(value), text="Подсветка", text_color="#ffffff",
                                         hover_color="#B5F22F", corner_radius=8, width=113, height=30, fg_color="#1C1D21")
-    led_menu_but.place(x=31, y=82)
+    value.led_menu_but.place(x=31, y=82)
 
     # 140
-    key_menu_but = customtkinter.CTkButton(menu, command=lambda: activity.key_page(value, led_menu_but, key_menu_but, main, nav), text="Ввод макросов", text_color="#ffffff",
+    value.key_menu_but = customtkinter.CTkButton(menu, command=lambda: activity.key_page(value), text="Ввод макросов", text_color="#ffffff",
                                         hover_color="#B5F22F", corner_radius=8, width=113, height=30, fg_color="#1C1D21")
-    key_menu_but.place(x=31, y=42)
+    value.key_menu_but.place(x=31, y=42)
     # подсказки
-    ToolTip(key_menu_but, msg="Замена функций клавишь", delay=0, fg="#B5F22F", bg="#1C1D21")
-    ToolTip(led_menu_but, msg="Замена цвета подсветки", delay=0, fg="#B5F22F", bg="#1C1D21")
+    ToolTip(value.key_menu_but, msg="Замена функций клавишь", delay=0, fg="#B5F22F", bg="#1C1D21")
+    ToolTip(value.led_menu_but, msg="Замена цвета подсветки", delay=0, fg="#B5F22F", bg="#1C1D21")
 
     # Подвал     ----------------------------------------------------------------------------------------------------
     about = customtkinter.CTkLabel(fotter, text="О нас", text_color="#FFFFFF", justify=tkinter.LEFT, font=("", 9))
