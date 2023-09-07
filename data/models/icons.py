@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, LargeBinary
-from database import Base
+from data.database import Base
 from sqlalchemy.orm import relationship
 
 

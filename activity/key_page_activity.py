@@ -14,6 +14,7 @@ def key_page(value, mode=res.mode[0]):
     if value.save_bt: value.save_bt.configure(state='disabled', fg_color='#66871E')                
     value.d_name = dict()
     value.file_name = f"data/{res.select_activity[0]}_{mode}.txt"
+    
     # менем выделение и цвет текста
     value.led_menu_but.configure(fg_color = "#1C1D21")
     value.key_menu_but.configure(fg_color = "#B5F22F")
@@ -42,12 +43,12 @@ def key_page(value, mode=res.mode[0]):
     key0.place(x=21, y=24)
 
     # кнопки для входа в меню энкодера
-    Enq_key = customtkinter.CTkButton(key_frame, command=lambda:activity.Enq_page(value, key_page), text=" ", corner_radius=105, width=70, height=70,
+    Enq_key = customtkinter.CTkButton(key_frame, command=lambda:activity.Enq_page(value), text=" ", corner_radius=105, width=70, height=70,
                                     fg_color="#EFEFEF", hover_color=key_hover)
     #print(Enq_key.winfo_name())
     Enq_key.place(x=42, y=38)
 
-    Enq_key2 = customtkinter.CTkButton(key_frame, command=lambda:activity.Enq_page(value, key_page), text=" ", corner_radius=5, width=160, height=40,
+    Enq_key2 = customtkinter.CTkButton(key_frame, command=lambda:activity.Enq_page(value), text=" ", corner_radius=5, width=160, height=40,
                                     fg_color="#EFEFEF", hover_color=key_hover)
     #print(Enq_key2.winfo_name())
     Enq_key2.place(x=145, y=55)

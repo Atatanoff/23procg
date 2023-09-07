@@ -15,13 +15,7 @@ random_txt = (
 
 text_about = "Текст: 'О нас'"
 
-# data_file_name_enq = ("enq_one.txt",
-#                   "enq_hold.txt",
-#                   "enq_double.txt")
-
-# data_file_name_key = ("key_one.txt",
-#                   "key_hold.txt",
-#                   "key_double.txt")
-
 select_activity = ("key", "enq") #активное акно
 mode = ("+one", "+hold", "+double") #режим зажатия кнопок
+
+data = "data/mb.db"

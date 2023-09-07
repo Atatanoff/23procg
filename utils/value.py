@@ -10,7 +10,6 @@ class Value:
         self.press_bt: customtkinter.CTkButton = None   #Нажатая кнопка
         self.save_bt: customtkinter.CTkButton = None
         self.clear_bt: customtkinter.CTkButton = None
-        self.activity = None                            #активное окно
         self.file_name = None                           #Путь к файлу значений кнопок активного окна
         self.ph: customtkinter.CTkButton = None
         self.state_nav = False                          #состояние навбара
@@ -18,7 +17,7 @@ class Value:
         self.entry_var = None                           #значение поля ентри
         self.press_mode = None                          #нажатая кнопка выбора режима
         self.buttons_mode = ()                          #кнопки выбора режимов
-
+        self.activity = None                            #функция активного окна
         #фреймы
         self.main = None
         self.led_menu_but = None
@@ -26,14 +25,15 @@ class Value:
         self.nav = None
 
     # ф-ция форматирования текста кнопки
-    def get_text_button(self, data_to_send):        
-        name_bt = data_to_send.split('+')[2:]    
+    def get_text_button(self, name):        
+        name_bt = name.split('+')[1:]
+        print(name_bt)
         #name_bt.pop(0)
         text_bt = ''
         #for i in range(len(name_bt) - 1):
             #text_bt += name_bt[i] + '+' + '\n'        
         #if name_bt: text_bt += name_bt[-1][:-1]
-        if name_bt: text_bt = "+\n".join(name_bt)[:-1]        
+        if name_bt: text_bt = "+\n".join(name_bt)     
         return text_bt
 
 # функция сохранения значния выбраной кнопки клавиатуры

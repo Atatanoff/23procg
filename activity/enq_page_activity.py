@@ -5,9 +5,9 @@ import res
 
 
 # ввод крутилок, сделал отдельным окном
-def Enq_page(value, key_page):
+def Enq_page(value):
     #запись состояний активного окна
-    #value.activity = None
+    value.mode = ''
     value.save_bt.configure(state='disabled', fg_color='#66871E')
     value.d_name = dict()
     value.file_name = f"data/{res.select_activity[1]}.txt"

@@ -12,7 +12,6 @@ from res import *
 import activity
 
 
-
 # def dark_title_bar(window):
 #     window.update()
 #     set_window_attribute = ct.windll.dwmapi.DwmSetWindowAttribute
