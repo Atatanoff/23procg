@@ -33,7 +33,7 @@ class App(Tk):
         data_prog = self.get_bd()
         if data_prog and not select_prog:
             select_prog = data_prog[0][1]
-        if select_prog:
+        if select_prog:            
             select_id = tuple(filter(lambda x: x[1]==select_prog, data_prog))[0][0]
             
         else: 
@@ -74,7 +74,7 @@ class FrameH(ttk.Frame):
         ttk.Button(self, text="Удалить программу", command=self.del_pro).grid(row=0, column=3)
 
     def add(self):
-        Windows(FrameWinPro, "Добавление программы", self.master)
+        Windows(FrameWinPro, "Добавление программы", self.master, None)
     
     def change(self):
         Windows(FrameWinPro, "Изменение программы", self.master, self.select_id)    
@@ -89,7 +89,7 @@ class FrameH(ttk.Frame):
                 
                 
 class FrameWinPro(ttk.Frame):
-    def __init__(self, master, id=None, *arg):
+    def __init__(self, master, id, *arg):
         super().__init__(master)
         self.id = id
         self.put_widget()
@@ -108,15 +108,16 @@ class FrameWinPro(ttk.Frame):
         check = (self.register(self.is_valid), "%P")
         self.entry_color = ttk.Entry(self, validate="key", validatecommand=check)
         self.entry_color.grid(column=1, row=1)
-        self.entry_color.insert(0, "#")
+        
         add_button = ttk.Button(self, text="Изменить" if self.id else "Добавить",
                                 command=self.add_pro)
         add_button.grid(column=0, row=3, columnspan=2, sticky='nesw')
-        
-        if self.id:            
+
+        if self.id and self.id[0]:            
             _, prg, clr = self.get_data()
             self.entry_prog.insert(0, prg)
             self.entry_color.insert(0, clr)
+        else: self.entry_color.insert(0, "#")
         
 
     def is_valid(self, newval):
@@ -135,22 +136,23 @@ class FrameWinPro(ttk.Frame):
                     cur = con.cursor()
                     return cur.execute("SELECT * FROM programs WHERE id = ?", self.id).fetchone()
         
-
-    
     def add_pro(self):
         add_prog = self.entry_prog.get()
         color = self.entry_color.get()
+
         if add_prog and color:
-            if not self.id:
+            if not self.id[0]:
                 with sqlite3.connect(res.data) as con:
                     cur = con.cursor()
                     cur.execute("INSERT INTO programs VALUES(NULL,?,?)", (add_prog,
                                                                         color))
             else:
                 with sqlite3.connect(res.data) as con:
+                    
                     cur = con.cursor()
-                    cur.execute("UPDATE programs SET VALUES(NULL,?,?)", (add_prog,
-                                                                        color))
+
+                    cur.execute("UPDATE programs SET color=?, name=? WHERE id=?", (color,
+                                                                        add_prog, self.id[0]))
             dismiss(self.master, add_prog)   
           
 
@@ -246,7 +248,7 @@ class FrameM(ttk.Frame):
         self.entry_name = ttk.Entry(self, validate="focus", validatecommand=chek)
         self.entry_name.grid(column=0, row=2)
         self.button_add_icon = customtkinter.CTkButton(self, text="добавить иконку", command=self.add_icon,
-                                                        compound='left', fg_color = "transparent" )
+                                                        compound='left', fg_color = "transparent", text_color='black')
         self.button_add_icon.grid(column=1, row=2)
         self.entry_macros = ttk.Entry(self)
         self.entry_macros.grid(column=2, row=2)
@@ -258,10 +260,10 @@ class FrameM(ttk.Frame):
         Windows(IconFrame, "Выбор иконки", self)
 
     def refresh(self, *arg):
-        if arg:
+        if arg[0]:
             with sqlite3.connect(res.data) as con:
                 cur = con.cursor()
-                data = cur.execute("SELECT * FROM icons WHERE id = ?", arg).fetchall()[0]
+                data = cur.execute("SELECT * FROM icons WHERE id = ?", arg).fetchone()
         
             self.id_icon = data[0]
             image = customtkinter.CTkImage(Image.frombytes(data[2], (data[3], data[4]), data[1]))
@@ -275,7 +277,7 @@ class FrameM(ttk.Frame):
     def add_in_bd(self):
         macros = self.entry_macros.get()
         name = self.entry_name.get()
-        if macros and (name or self.id_icon):
+        if macros and (name or self.id_icon) and self.id_prog:
             name = self.entry_name.get()
             if not name:
                 name = None
@@ -293,7 +295,7 @@ class FrameM(ttk.Frame):
         self.id_icon = 'NULL'
         self.button_add_icon.destroy()
         self.button_add_icon = customtkinter.CTkButton(self, text="добавить иконку", command=self.add_icon,
-                                                        compound='left', fg_color = "transparent" )
+                                                        compound='left', fg_color = "transparent", text_color='black')
         self.button_add_icon.grid(column=1, row=2)
 
 class IconFrame(ttk.Frame):
@@ -318,12 +320,12 @@ class FrameIconTop(ttk.Frame):
         Button(self, text="загрузить иконку в бд...", command=self.add_icon_in_bd).grid()
     
     def add_icon_in_bd(self):
-        #доделать загрузку нескольких иконок
-        file_path = filedialog.askopenfilename()
-        icon_img = convert_to_binary_data(file_path)
+        
+        file_pathes = filedialog.askopenfilenames()
+        file_lst = [convert_to_binary_data(file_path) for file_path in file_pathes]
         with sqlite3.connect(res.data) as con:
             cur = con.cursor()
-            cur.execute("INSERT INTO icons VALUES(NULL,?,?,?,?)", icon_img)
+            cur.executemany("INSERT INTO icons VALUES(NULL,?,?,?,?)", file_lst)
         self.master.refresh()
 
 def convert_to_binary_data(filename):
