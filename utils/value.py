@@ -18,12 +18,19 @@ class Value:
         self.press_mode = None                          #нажатая кнопка выбора режима
         self.buttons_mode = ()                          #кнопки выбора режимов
         self.activity = None                            #функция активного окна
+        self.toolbar_prog = list()                      #список кнопок программ
+        self.name_button = None                         #имя сохраняемой кнопки
+        self.macros_id = None                           #id сохраняемого макроса
         #фреймы
         self.main = None
         self.led_menu_but = None
         self.key_menu_but = None
         self.nav = None
 
+    def disprog(self):
+        for el in self.toolbar_prog:
+            el.configure(state='disabled')
+            
     # ф-ция форматирования текста кнопки
     def get_text_button(self, name):        
         name_bt = name.split('+')[1:]
@@ -42,8 +49,10 @@ class Value:
         if self.press_bt: self.press_bt.configure(fg_color='#FFFFFF')
         self.press_bt = bt
 
-        if self.ph.cget('state') == 'disabled':
-            self.ph.configure(state='active')
+        for el in self.toolbar_prog:
+            el.configure(state='active')
+        # if self.ph.cget('state') == 'disabled':
+        #     self.ph.configure(state='active')
         
         if self.save_bt.cget('state') == 'disabled':
             self.save_bt.configure(state='active',fg_color='#B5F22F')

@@ -23,30 +23,12 @@ def load_file(widg: customtkinter.CTkFrame, value):
     with sqlite3.connect(res.data) as con:
         con.row_factory = sqlite3.Row
         cur = con.cursor()
-        cur.execute('''CREATE TABLE IF NOT EXISTS Button (
-        button TEXT NOT NULL,
-        name TEXT NOT NULL,
-        act TEXT NOT NULL
-        )''')
-        cur.execute(f"SELECT button, name, act FROM Button WHERE act = '{value.mode}'")
+        cur.execute(f"SELECT buttons, name, activity FROM buttons WHERE activity = '{value.mode}'")
        
         for el in cur:            
-            button = el['button']         
-            name = el['name']            
-            value.d_name[button] = name                      
+            button = el['buttons']         
+            name = el['name'] if el['name'] else el['macros_id']                          
             widg.nametowidget(button).configure(text=name)
-
-def load_file2(widg: customtkinter.CTkFrame, value):
-    #data = get_data()  
-    data = ()    
-    for el in data:            
-        button = el[0]
-                   
-        name = el[1]           
-        value.d_name[button] = name           
-        text_bt = value.get_text_button(name)
-        if not text_bt: text_bt = "Пусто"            
-        widg.nametowidget(button).configure(text=text_bt)
 
 # ф-ция открытия ссылок из подвала
 def open_link(url):
@@ -89,7 +71,6 @@ def ser_write(data):
 #ф-ция сохранения 
 def save(value):
     name = "" 
-
     for key, item in value.list_var.items():
         if item.get():
             name += key
@@ -102,30 +83,26 @@ def save(value):
 
 
 def savemacro(value, name):
-    dataToSend = value.key + value.mode + name + ";"
-    
-    text_bt = value.get_text_button(name)
-    value.press_bt.configure(text=text_bt)
-    #value.press_bt.configure(text=name)
-    value.d_name[value.press_bt.winfo_name()] = text_bt  
+    dataToSend = value.key + value.mode + name + ";"   
+    value.name_button = value.get_text_button(name)
+    value.press_bt.configure(text=value.name_button)
+    save_name_btmb(value)      
     #entry.delete(0, tkinter.constants.END)
     value.entry_var.set("")
     value.save_bt.configure(state='disabled', fg_color='#66871E')
     value.clear_bt.configure(state='disabled')
-    value.ph.configure(state='disabled')
-    value.press_bt.configure(fg_color='#FFFFFF')           
-
-   
-    
-    save_name_btmb(value)
-                    
+    value.disprog()
+    value.press_bt.configure(fg_color='#FFFFFF')                                 
     ser_write(dataToSend)
 
 def save_name_btmb(value):
     with sqlite3.connect(res.data) as con:
         cur = con.cursor()
-        for el in value.d_name:
-            cur.execute("INSERT INTO Button VALUES(?, ?, ?)",(el, value.d_name[el], value.mode))
+        cur.execute("INSERT INTO buttons VALUES(NULL, ?, ?, ?, ?)",(
+            value.press_bt.winfo_name(),
+            value.name_button if value.name_button else None,
+            value.mode,
+            value.macros_id if value.macros_id else None))
 
 def savemacros2(value, name=None, icon = None, color = None):
     dataToSend = value.key + value.mode + name + ";"

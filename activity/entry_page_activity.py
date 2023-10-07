@@ -5,6 +5,7 @@ from utils.Utils import save, select_mode
 from utils.value import Value
 import activity
 import res
+import sqlite3
 
 
 
@@ -19,39 +20,16 @@ def entry_page(value: Value):
                                             orientation="horizontal", width=556, height=51, corner_radius=0)
     toolbar.place(x=42, y=0)
 
-    value.ph = customtkinter.CTkButton(toolbar, command=lambda: activity.Photoshop(value), text="Photoshop", corner_radius=12, width=90,
+    with sqlite3.connect(res.data) as con:
+        cur = con.cursor()
+        c = 0
+        for el in cur.execute('SELECT id, name FROM programs').fetchall():
+            ph = customtkinter.CTkButton(toolbar, command=lambda i=el[0]: activity.ProgramWin(i), text=el[1], corner_radius=12, width=90,
                                     height=51, fg_color="transparent", text_color="#777777",
                                     hover_color="#303135", font=("", 11), border_color="#FFFFFF", state="disabled")
-    value.ph.grid(row=0, column=0)
-    
-    buttonil = customtkinter.CTkButton(toolbar, text="illustrator", corner_radius=12, width=90,
-                                    height=51, fg_color="transparent", text_color="#777777",
-                                    hover_color="#303135", font=("", 11), border_color="#FFFFFF")
-    buttonil.grid(row=0, column=1)
-    buttonPp = customtkinter.CTkButton(toolbar, text="PremierPro", corner_radius=12, width=90,
-                                    height=51, fg_color="transparent", text_color="#777777",
-                                    hover_color="#303135", font=("", 11), border_color="#FFFFFF")
-    buttonPp.grid(row=0, column=2)
-    buttonC4D = customtkinter.CTkButton(toolbar, text="Cinema4D", corner_radius=12, width=90,
-                                        height=51, fg_color="transparent", text_color="#777777",
-                                        hover_color="#303135", font=("", 11), border_color="#FFFFFF")
-    buttonC4D.grid(row=0, column=3)
-    button3Ds = customtkinter.CTkButton(toolbar, text="3DsMax", corner_radius=12, width=90,
-                                        height=51, fg_color="transparent", text_color="#777777",
-                                        hover_color="#303135", font=("", 11), border_color="#FFFFFF")
-    button3Ds.grid(row=0, column=4)
-    buttonBle = customtkinter.CTkButton(toolbar, text="Blender", corner_radius=12, width=90,
-                                        height=51, fg_color="transparent", text_color="#777777",
-                                        hover_color="#303135", font=("", 11), border_color="#FFFFFF")
-    buttonBle.grid(row=0, column=5)
-    buttonFig = customtkinter.CTkButton(toolbar, text="Figma", corner_radius=12, width=90,
-                                        height=51, fg_color="transparent", text_color="#777777",
-                                        hover_color="#303135", font=("", 11), border_color="#FFFFFF")
-    buttonFig.grid(row=0, column=6)
-    buttonFu = customtkinter.CTkButton(toolbar, text="Fusion 360", corner_radius=12, width=90,
-                                    height=51, fg_color="transparent", text_color="#777777",
-                                    hover_color="#303135", font=("", 11), border_color="#FFFFFF")
-    buttonFu.grid(row=0, column=7)
+            ph.grid(row=0, column=c)
+            value.toolbar_prog.append(ph)
+            c+=1
 
     # ввод макросов
     value.entry_var = tkinter.StringVar()
