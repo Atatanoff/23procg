@@ -12,4 +12,3 @@ class Macros(Base):
     icon = relationship('Icons', back_populates='macros')
     program_id = Column(Integer, ForeignKey('programs.id'))
     program = relationship('Programs', back_populates='macros')
-    button = relationship('Buttons', back_populates='macros')

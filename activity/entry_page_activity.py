@@ -2,7 +2,6 @@ import customtkinter
 import tkinter
 
 from utils.Utils import save, select_mode
-from utils.value import Value
 import activity
 import res
 import sqlite3
@@ -11,7 +10,7 @@ import sqlite3
 
     
 
-def entry_page(value: Value):
+def entry_page(value):
     # окно для работы с кнопками
     entry_frame = customtkinter.CTkFrame(value.nav, width=607, height=217, corner_radius=0, fg_color="#1C1D21")
 
@@ -24,9 +23,19 @@ def entry_page(value: Value):
         cur = con.cursor()
         c = 0
         for el in cur.execute('SELECT id, name FROM programs').fetchall():
-            ph = customtkinter.CTkButton(toolbar, command=lambda i=el[0]: activity.ProgramWin(i), text=el[1], corner_radius=12, width=90,
-                                    height=51, fg_color="transparent", text_color="#777777",
-                                    hover_color="#303135", font=("", 11), border_color="#FFFFFF", state="disabled")
+            ph = customtkinter.CTkButton(
+                toolbar,
+                command=lambda i=el[0]: activity.ProgramWin(i, value),
+                text=el[1],
+                corner_radius=12,
+                width=90,
+                height=51,
+                fg_color="transparent",
+                text_color="#777777",
+                hover_color="#303135",
+                font=("", 11),
+                border_color="#FFFFFF",
+                state="disabled")
             ph.grid(row=0, column=c)
             value.toolbar_prog.append(ph)
             c+=1

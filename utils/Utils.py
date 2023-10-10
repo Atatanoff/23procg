@@ -19,16 +19,23 @@ def select_mode(value, bt = None, mode=res.mode[0]):
 
 # функция загрузки из конфигурационного файла
 
-def load_file(widg: customtkinter.CTkFrame, value):    
+def load_file(widg: customtkinter.CTkFrame, value):  
+    if not os.path.isfile(res.data):
+        import data.create_db  
     with sqlite3.connect(res.data) as con:
         con.row_factory = sqlite3.Row
         cur = con.cursor()
-        cur.execute(f"SELECT buttons, name, activity FROM buttons WHERE activity = '{value.mode}'")
+        cur.execute(
+            "SELECT buttons, name, icon_id, program_id FROM buttons WHERE activity=?",
+            (value.mode,))
        
         for el in cur:            
-            button = el['buttons']         
-            name = el['name'] if el['name'] else el['macros_id']                          
-            widg.nametowidget(button).configure(text=name)
+            value.edit_set_button = widg.nametowidget(el['buttons'])      
+            value.name_button = el['name'] if el['name'] else None
+            value.image_button = el['icon_id'] if el['icon_id'] else None
+            value.color_button = el['program_id'] if el['program_id'] else None
+            value.set_button()                 
+            
 
 # ф-ция открытия ссылок из подвала
 def open_link(url):
@@ -81,60 +88,16 @@ def save(value):
 
     savemacro(value, name)
 
-
 def savemacro(value, name):
     dataToSend = value.key + value.mode + name + ";"   
     value.name_button = value.get_text_button(name)
-    value.press_bt.configure(text=value.name_button)
-    save_name_btmb(value)      
+    value.save_name_btmb()      
     #entry.delete(0, tkinter.constants.END)
     value.entry_var.set("")
     value.save_bt.configure(state='disabled', fg_color='#66871E')
     value.clear_bt.configure(state='disabled')
     value.disprog()
     value.press_bt.configure(fg_color='#FFFFFF')                                 
-    ser_write(dataToSend)
-
-def save_name_btmb(value):
-    with sqlite3.connect(res.data) as con:
-        cur = con.cursor()
-        cur.execute("INSERT INTO buttons VALUES(NULL, ?, ?, ?, ?)",(
-            value.press_bt.winfo_name(),
-            value.name_button if value.name_button else None,
-            value.mode,
-            value.macros_id if value.macros_id else None))
-
-def savemacros2(value, name=None, icon = None, color = None):
-    dataToSend = value.key + value.mode + name + ";"
-    #text_bt = value.get_text_button(dataToSend)
-    #value.press_bt.configure(text=name)
-
-    '''
-    если текст (название либо макрос) то присваиваем
-    текст, иначе назначаем иконку, если есть цвет, то меням цвет
-    '''
-    if name:
-        value.press_bt.configure(text=value.get_text_button(dataToSend))
-    else:
-        value.press_bt.configure(text='')
-        value.press_bt.configure(image=icon)
-    if color:
-        value.press_bt.configure(fg_color=color)
-    value.d_name[value.press_bt.winfo_name()] = dataToSend   
-    #entry.delete(0, tkinter.constants.END)
-    value.entry_var.set("")
-    value.save_bt.configure(state='disabled', fg_color='#66871E')
-    value.clear_bt.configure(state='disabled')
-    value.ph.configure(state='disabled')
-    value.press_bt.configure(fg_color='#FFFFFF')           
-
-    '''
-    этот блок меняем на запись в бд
-    '''
-    with open(value.file_name, 'w') as f:
-        for key in value.d_name:
-            print(key, value.d_name[key], file=f)
-                    
     ser_write(dataToSend)
 
 def time_of_day():

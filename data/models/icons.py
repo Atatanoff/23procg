@@ -10,6 +10,7 @@ class Icons(Base):
     mode = Column(String)
     width = Column(Integer)
     hight = Column(Integer)
-    macros = relationship('Macros', back_populates='icon')
+    macros = relationship('Macros', back_populates='icons')
+    button = relationship('Buttons', back_populates='icons')
     
     

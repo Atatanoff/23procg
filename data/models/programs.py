@@ -8,5 +8,5 @@ class Programs(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     color = Column(String)
-    macros = relationship('Macros', back_populates='program')
-    
+    macros = relationship('Macros', back_populates='programs')
+    button = relationship('Buttons', back_populates='programs')

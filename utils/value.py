@@ -1,5 +1,8 @@
 import customtkinter
+import sqlite3
+import res
 from loguru import logger
+from PIL import Image
 
 
 # Вспомогательный класс переменных и состояний
@@ -19,8 +22,15 @@ class Value:
         self.buttons_mode = ()                          #кнопки выбора режимов
         self.activity = None                            #функция активного окна
         self.toolbar_prog = list()                      #список кнопок программ
+        self.mode = None                                #текущий режим окна
+        #параметры сохраняемой кнопки
+        self.edit_set_button = None                     #кнопка для которой параметры требуется изменить 
         self.name_button = None                         #имя сохраняемой кнопки
+        self.image_button = None                        #id иконки кнопки
+        self.color_button = "#EFEFEF"                      #id программы скрипт которой назначен кнопке
+
         self.macros_id = None                           #id сохраняемого макроса
+        self.bt_last_color = None                       #цвет кнопки перед нажатием
         #фреймы
         self.main = None
         self.led_menu_but = None
@@ -34,7 +44,7 @@ class Value:
     # ф-ция форматирования текста кнопки
     def get_text_button(self, name):        
         name_bt = name.split('+')[1:]
-        print(name_bt)
+
         #name_bt.pop(0)
         text_bt = ''
         #for i in range(len(name_bt) - 1):
@@ -46,8 +56,10 @@ class Value:
 # функция сохранения значния выбраной кнопки клавиатуры
     def button_function(self, arg: str, bt: customtkinter.CTkButton):   
         self.key = arg
-        if self.press_bt: self.press_bt.configure(fg_color='#FFFFFF')
+
+        if self.press_bt: self.press_bt.configure(fg_color=self.bt_last_color)
         self.press_bt = bt
+        self.bt_last_color = bt.cget('fg_color')
 
         for el in self.toolbar_prog:
             el.configure(state='active')
@@ -59,3 +71,62 @@ class Value:
             self.clear_bt.configure(state='active')        
         
         bt.configure(fg_color='#8AB42F')
+# функция сохраненич параметров кнопки в бд
+    def save_name_btmb(self):
+        
+        with sqlite3.connect(res.data) as con:
+            cur = con.cursor()
+            id = cur.execute("SELECT id FROM buttons WHERE buttons=?", (self.press_bt.winfo_name(),)).fetchone()
+            
+            if id:
+                           
+                cur.execute("UPDATE buttons SET name=NULL, icon_id=?, program_id=? WHERE id=?",
+                                (self.image_button, self.color_button, id[0]))
+            else:   
+                cur.execute(
+                    "INSERT INTO buttons VALUES(NULL, ?, ?, ?, ?, ?)",        
+                    (
+                    self.press_bt.winfo_name(),
+                    self.name_button if self.name_button else None,
+                    self.mode,
+                    self.image_button if self.image_button else None,
+                    self.color_button if self.color_button else None
+                    )
+                    )
+        self.edit_set_button = self.press_bt
+        self.set_button()     
+
+        
+    #обнулние значений сохраняемой или загружаемой кнопки
+    def reset(self):
+        self.name_button = None
+        self.image_button = None
+        self.color_button = "#EFEFEF"
+
+    #установка параметров кнопки
+
+    def set_button(self):
+        name = self.name_button
+        with sqlite3.connect(res.data) as con:
+            cur = con.cursor()
+            if isinstance(self.image_button, int):
+                icon = cur.execute(
+                    "SELECT icons, mode, width, hight FROM icons WHERE id=?",
+                    (self.image_button,)).fetchone()
+                image = customtkinter.CTkImage(
+                    Image.frombytes(icon[1], (icon[2], icon[3]), icon[0]))
+            else: image = None 
+            if isinstance(self.color_button, int):
+                color = cur.execute(
+                "SELECT color FROM programs WHERE id=?",
+                (self.color_button,)).fetchone()[0]
+                name = None
+                    
+            else: color = "#EFEFEF"
+        self.edit_set_button.configure(
+            text=name,
+            image=image,
+            fg_color=color,
+            )
+        self.bt_last_color = color
+        self.reset()
