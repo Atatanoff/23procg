@@ -3,13 +3,15 @@ import sqlite3
 import res
 from loguru import logger
 from PIL import Image
+import utils.Utils as ut
 
 
 # Вспомогательный класс переменных и состояний
 class Value:
     def __init__(self) -> None:
         self.key = None                                 #значение нажатой кнопки
-        self.d_name = dict()                            #Коллекция кнопок и значений 
+        self.d_name = list()                      #Коллекция кнопок и значений 
+        
         self.press_bt: customtkinter.CTkButton = None   #Нажатая кнопка
         self.save_bt: customtkinter.CTkButton = None
         self.clear_bt: customtkinter.CTkButton = None
@@ -130,3 +132,11 @@ class Value:
             )
         self.bt_last_color = color
         self.reset()
+
+    def ledfunction(self, macros: str, color=None):
+
+        pars = macros.split("+")
+        if pars[0] == "$LEDCOLOR":
+            for el in self.d_name:
+                el.configure( fg_color = pars[1][:-1] )
+        ut.ser_write(macros)

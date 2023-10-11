@@ -9,7 +9,7 @@ def Enq_page(value):
     #запись состояний активного окна
     value.mode = ''
     value.save_bt.configure(state='disabled', fg_color='#66871E')
-    value.d_name = dict()
+    
     value.file_name = f"data/{res.select_activity[1]}.txt"
     key_color = "#FFFFFF"
     key_hover = "#B5F22F"

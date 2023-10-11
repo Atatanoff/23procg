@@ -1,10 +1,13 @@
 __pycache__/
 ex*
 .venv/
-data/
 test.py
 ui.py
 *.txt
 .idea/
 log/
-
+main3.py
+*.png
+main_icon.py
+.vscode
+*.db

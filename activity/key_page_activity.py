@@ -12,7 +12,7 @@ def key_page(value, mode=res.mode[0]):
     value.mode = mode
     value.activity = key_page
     if value.save_bt: value.save_bt.configure(state='disabled', fg_color='#66871E')                
-    value.d_name = dict()
+
     value.file_name = f"data/{res.select_activity[0]}_{mode}.txt"
     
     # менем выделение и цвет текста
