@@ -20,8 +20,7 @@ def select_mode(value, bt = None, mode=res.mode[0]):
 # функция загрузки из конфигурационного файла
 
 def load_file(widg: customtkinter.CTkFrame, value):  
-    if not os.path.isfile(res.data):
-        import data.create_db  
+ 
     with sqlite3.connect(res.data) as con:
         con.row_factory = sqlite3.Row
         cur = con.cursor()

@@ -78,21 +78,29 @@ class Value:
         
         with sqlite3.connect(res.data) as con:
             cur = con.cursor()
-            id = cur.execute("SELECT id FROM buttons WHERE buttons=?", (self.press_bt.winfo_name(),)).fetchone()
+            id = cur.execute(
+                "SELECT id FROM buttons WHERE buttons=? AND activity=?",
+                (self.press_bt.winfo_name(),
+                 self.mode
+                )).fetchone()
             
             if id:
                            
-                cur.execute("UPDATE buttons SET name=NULL, icon_id=?, program_id=? WHERE id=?",
-                                (self.image_button, self.color_button, id[0]))
+                cur.execute("UPDATE buttons SET name=?, icon_id=?, program_id=? WHERE id=?",
+                                (
+                                    self.name_button,
+                                    self.image_button,
+                                    self.color_button,
+                                    id[0]))
             else:   
                 cur.execute(
                     "INSERT INTO buttons VALUES(NULL, ?, ?, ?, ?, ?)",        
                     (
                     self.press_bt.winfo_name(),
-                    self.name_button if self.name_button else None,
+                    self.name_button,
                     self.mode,
-                    self.image_button if self.image_button else None,
-                    self.color_button if self.color_button else None
+                    self.image_button,
+                    self.color_button
                     )
                     )
         self.edit_set_button = self.press_bt
