@@ -51,31 +51,31 @@ def Enq_page(value):
                                        bg_color="#1C1D21")
     back_but.place(x=43, y=42)
 
-    key22 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: value.button_function("key22", key22), corner_radius=8, width=70, height=70,
+    key22 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: value.button_function("$key22", key22), corner_radius=8, width=70, height=70,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key22.place(x=151, y=156)
 
-    key23 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: value.button_function("key23", key23), corner_radius=8, width=106, height=40,
+    key23 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: value.button_function("$key23", key23), corner_radius=8, width=106, height=40,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key23.place(x=41, y=147)
 
-    key24 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: value.button_function("key24", key24), corner_radius=8, width=106, height=40,
+    key24 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: value.button_function("$key24", key24), corner_radius=8, width=106, height=40,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key24.place(x=41, y=190)
 
-    key25 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: value.button_function("key25", key25), corner_radius=8, width=106, height=40,
+    key25 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: value.button_function("$key25", key25), corner_radius=8, width=106, height=40,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key25.place(x=225, y=147)
 
-    key26 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: value.button_function("key26", key26), corner_radius=8, width=106, height=40,
+    key26 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: value.button_function("$key26", key26), corner_radius=8, width=106, height=40,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key26.place(x=225, y=190)
 
-    key27 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: value.button_function("key27", key27), corner_radius=8, width=144, height=50,
+    key27 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: value.button_function("$key27", key27), corner_radius=8, width=144, height=50,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key27.place(x=411, y=137)
 
-    key28 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: value.button_function("key28", key28), corner_radius=8, width=144, height=50,
+    key28 = customtkinter.CTkButton(Enq_frame, text="Пусто", command=lambda: value.button_function("$key28", key28), corner_radius=8, width=144, height=50,
                                     fg_color=key_color, text_color=key_text_color, hover_color=key_hover, font=key_font)
     key28.place(x=411, y=190)
 

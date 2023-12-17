@@ -41,7 +41,8 @@ def open_link(url):
     webbrowser.open_new(url)
 
 # ф-ция записи в порт
-def ser_write(data):   
+def ser_write(data):  
+    print(data) 
     f_port = None
     print('Search...')
     ports = serial.tools.list_ports.comports()

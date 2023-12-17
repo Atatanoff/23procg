@@ -5,6 +5,7 @@ from tkinter.messagebox import showinfo
 import customtkinter
 from tktooltip import ToolTip
 import random
+from PIL import ImageTk, Image
 
 from utils.Utils import open_link, time_of_day
 from utils.value import Value
@@ -26,8 +27,13 @@ value = Value()
 def run():
     # главное окно
     app = customtkinter.CTk()
-    app.title('ASPIS')
-    # app.iconbitmap('aspid.ico')
+    app.title('23procg')
+    icon = ImageTk.PhotoImage(Image.open("res/drawable/23procg_nobg.jpg"))
+    # img = Image.open("res/drawable/icon.ico")
+    app.tk.call('wm', 'iconphoto', app._w, icon) 
+    
+    
+    #app.iconphoto(True, icon)
     app.geometry("773x591")
     # app.attributes('-alpha', 0.5)
     app.resizable(False, False)
@@ -39,6 +45,11 @@ def run():
     logobox = customtkinter.CTkFrame(master=app, fg_color="#1C1D21")
     logobox.configure(width=175, height=107.4, corner_radius=0)
     logobox.place(x=0, y=0)
+    # числами в методе resize регулировать высоту и ширину логотипа
+    logo_img = ImageTk.PhotoImage(Image.open("res/drawable/23procg_nobg.jpg").resize((115, 25)))
+    
+    label_logo_img = Label(logobox, image=logo_img, borderwidth=0)
+    label_logo_img.place(x=29, y=41)
 
     menu = customtkinter.CTkFrame(master=app, fg_color="#1C1D21")
     menu.configure(width=175, height=307, corner_radius=0)
@@ -56,7 +67,7 @@ def run():
     value.nav.configure(width=607, height=217, corner_radius=0)
     value.nav.place(x=175, y=375)
 
-    # Надпись которая зависит от времяни открывания программы
+    # Надпись которая зависит от времени открывания программы
 
     hello = customtkinter.CTkLabel(value.main, text=welcome_txt[time_of_day()], text_color="#FFFFFF", font=("Arial blod", 15))
     hello.place(relx=.5, rely=.5, anchor="c")
@@ -68,7 +79,7 @@ def run():
 
     # 451
     value.led_menu_but = customtkinter.CTkButton(menu, command=lambda:activity.led_page(value), text="Подсветка", text_color="#ffffff",
-                                        hover_color="#B5F22F", corner_radius=8, width=113, height=30, fg_color="#1C1D21")
+                                        hover_color="#B5F22F", corner_radius=8, width=113, height=30, fg_color="#1C1D21", state="disabled")
     value.led_menu_but.place(x=31, y=82)
 
     # 140

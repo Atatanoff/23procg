@@ -15,31 +15,71 @@ def entry_page(value):
     entry_frame = customtkinter.CTkFrame(value.nav, width=607, height=217, corner_radius=0, fg_color="#1C1D21")
 
     # бар с готовыеми макрос наборами
+    # toolbar = customtkinter.CTkScrollableFrame(master=entry_frame, scrollbar_button_color="#303135", fg_color="#1C1D21",
+    #                                         orientation="horizontal", width=556, height=51, corner_radius=0)
+    # toolbar.place(x=42, y=0)
+
+    # with sqlite3.connect(res.data) as con:
+    #     cur = con.cursor()
+    #     c = 0
+    #     for el in cur.execute('SELECT id, name FROM programs').fetchall():
+    #         ph = customtkinter.CTkButton(
+    #             toolbar,
+    #             command=lambda i=el[0]: activity.ProgramWin(i, value),
+    #             text=el[1],
+    #             corner_radius=12,
+    #             width=90,
+    #             height=51,
+    #             fg_color="transparent",
+    #             text_color="#777777",
+    #             hover_color="#303135",
+    #             font=("", 11),
+    #             border_color="#FFFFFF",
+    #             state="disabled")
+    #         ph.grid(row=0, column=c)
+    #         value.toolbar_prog.append(ph)
+    #         c+=1
+    
+    # бар с готовыеми макрос наборами неактивный чтобы стал активный, удалить код ниже то метки и разкоментировать
+    # код выше. Добавить значения в базу данных
     toolbar = customtkinter.CTkScrollableFrame(master=entry_frame, scrollbar_button_color="#303135", fg_color="#1C1D21",
-                                            orientation="horizontal", width=556, height=51, corner_radius=0)
-    toolbar.place(x=42, y=0)
+                                               orientation="horizontal", width=600, height=51, corner_radius=0)
+    toolbar.place(x=0, y=0)
 
-    with sqlite3.connect(res.data) as con:
-        cur = con.cursor()
-        c = 0
-        for el in cur.execute('SELECT id, name FROM programs').fetchall():
-            ph = customtkinter.CTkButton(
-                toolbar,
-                command=lambda i=el[0]: activity.ProgramWin(i, value),
-                text=el[1],
-                corner_radius=12,
-                width=90,
-                height=51,
-                fg_color="transparent",
-                text_color="#777777",
-                hover_color="#303135",
-                font=("", 11),
-                border_color="#FFFFFF",
-                state="disabled")
-            ph.grid(row=0, column=c)
-            value.toolbar_prog.append(ph)
-            c+=1
-
+    buttonPs = customtkinter.CTkButton(toolbar, text="Photoshop", corner_radius=12, width=90,
+                                       height=51, fg_color="transparent", text_color="#777777",
+                                       hover_color="#303135", font=("", 11), border_color="#FFFFFF")
+    buttonPs.grid(row=0, column=0)
+    buttonil = customtkinter.CTkButton(toolbar, text="illustrator", corner_radius=12, width=90,
+                                       height=51, fg_color="transparent", text_color="#777777",
+                                       hover_color="#303135", font=("", 11), border_color="#FFFFFF")
+    buttonil.grid(row=0, column=1)
+    buttonPp = customtkinter.CTkButton(toolbar, text="PremierPro", corner_radius=12, width=90,
+                                       height=51, fg_color="transparent", text_color="#777777",
+                                       hover_color="#303135", font=("", 11), border_color="#FFFFFF")
+    buttonPp.grid(row=0, column=2)
+    buttonC4D = customtkinter.CTkButton(toolbar, text="Cinema4D", corner_radius=12, width=90,
+                                        height=51, fg_color="transparent", text_color="#777777",
+                                        hover_color="#303135", font=("", 11), border_color="#FFFFFF")
+    buttonC4D.grid(row=0, column=3)
+    button3Ds = customtkinter.CTkButton(toolbar, text="3DsMax", corner_radius=12, width=90,
+                                        height=51, fg_color="transparent", text_color="#777777",
+                                        hover_color="#303135", font=("", 11), border_color="#FFFFFF")
+    button3Ds.grid(row=0, column=4)
+    buttonBle = customtkinter.CTkButton(toolbar, text="Blender", corner_radius=12, width=90,
+                                        height=51, fg_color="transparent", text_color="#777777",
+                                        hover_color="#303135", font=("", 11), border_color="#FFFFFF")
+    buttonBle.grid(row=0, column=5)
+    buttonFig = customtkinter.CTkButton(toolbar, text="Figma", corner_radius=12, width=90,
+                                        height=51, fg_color="transparent", text_color="#777777",
+                                        hover_color="#303135", font=("", 11), border_color="#FFFFFF")
+    buttonFig.grid(row=0, column=6)
+    buttonFu = customtkinter.CTkButton(toolbar, text="Fusion 360", corner_radius=12, width=90,
+                                       height=51, fg_color="transparent", text_color="#777777",
+                                       hover_color="#303135", font=("", 11), border_color="#FFFFFF")
+    buttonFu.grid(row=0, column=7)
+    #удалить до сюда
+    
     # ввод макросов
     value.entry_var = tkinter.StringVar()
 
@@ -145,15 +185,15 @@ def entry_page(value):
     if not value.press_mode:
         value.press_mode = button_ok
         button_ok.configure(fg_color="#AA61EC")
-
+# чтобы кнопки стали активными удалить параметр 'state="disabled"'
     button_ho = customtkinter.CTkButton(mode_frame, text="Удержание", command=lambda: select_mode(value, button_ho, res.mode[1]), font=custom_font, text_color="#FFFFFF",
                                         fg_color='#1C1D21',hover_color="#AA61EC",
-                                        corner_radius=7, width=73, height=30, bg_color="#303135")
+                                        corner_radius=7, width=73, height=30, bg_color="#303135", state="disabled")
     button_ho.place(x=83, y=3)
 
     button_dk = customtkinter.CTkButton(mode_frame, text="Два нажатия", command=lambda: select_mode(value, button_dk, res.mode[2]), font=custom_font, text_color="#FFFFFF",
                                         fg_color='#1C1D21',hover_color="#AA61EC",
-                                        corner_radius=7, width=73, height=30, bg_color="#303135")
+                                        corner_radius=7, width=73, height=30, bg_color="#303135", state="disabled")
     button_dk.place(x=161, y=3)
     
     value.buttons_mode = (button_ok, button_ho, button_dk)
